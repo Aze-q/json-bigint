@@ -1,7 +1,8 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
-import path from 'path'; 
+import path from 'path';
+import json from '@rollup/plugin-json'; // 1. 引入插件
 
 export default {
   input: 'index.js',
@@ -27,6 +28,7 @@ export default {
     return !id.startsWith('.') && !path.isAbsolute(id);
   },
   plugins: [
+    json(),
     resolve({
       preferBuiltins: true,
       extensions: ['.js', '.json'],
@@ -37,7 +39,7 @@ export default {
     }),
     babel({
       babelHelpers: 'bundled',
-      presets: ['@babel/preset-env'], 
+      presets: ['@babel/preset-env'],
     }),
   ],
 };

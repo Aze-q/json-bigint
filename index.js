@@ -1,6 +1,7 @@
 var json_stringify = require('./lib/stringify.js').stringify;
 var json_parse = require('./lib/parse.js');
 var crypto = require('crypto');
+global.packageJson = require('../package.json')?.version;
 
 if (!global.runRootDir) {
   global.runRootDir = process.cwd();
