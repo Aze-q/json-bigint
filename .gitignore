@@ -18,3 +18,4 @@ npm-debug.log
 .specstory
 .npmrc
 dist
+test/downloads

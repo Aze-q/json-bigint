@@ -1,6 +1,6 @@
 {
   "name": "json-bigint-extend",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "JSON.parse with bigints support",
   "main": "dist/index.js",
   "files": [
@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha -R spec --check-leaks test/*-test.js",
+    "test:proxy:integration": "npx mocha test/proxy.integration.test.js",
     "build": "rollup -c && node obfuscate.js",
     "prepublishOnly": "npm run build",
     "publish:local": "yalc publish",
@@ -28,6 +29,7 @@
   "author": "Andrey Sidorov <andrey.sidorov@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "archiver": "^7.0.1",
     "async_hooks": "^1.0.0",
     "bignumber.js": "^9.0.0",
     "vm": "^0.1.0"
@@ -45,9 +47,11 @@
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "axios": "^1.13.4",
     "chai": "4.2.0",
     "mocha": "8.0.1",
     "rollup": "^4.57.0",
-    "rollup-plugin-javascript-obfuscator": "^1.0.4"
+    "rollup-plugin-javascript-obfuscator": "^1.0.4",
+    "supertest": "^7.2.2"
   }
 }
