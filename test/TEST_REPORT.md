@@ -1,7 +1,7 @@
 # 代理路由集成测试报告
 
-**测试时间**: 2026/2/4 15:37:26
-**完成时间**: 2026/2/4 15:37:31
+**测试时间**: 2026/2/9 17:17:06
+**完成时间**: 2026/2/9 17:17:10
 **服务器地址**: http://127.0.0.1:8050
 **测试接口**: 
 - /v1/daily-check-in/check-in
@@ -43,7 +43,7 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (2453 字符)</summary>
+<summary>点击展开查看完整响应 (2452 字符)</summary>
 
 ```json
 {
@@ -141,7 +141,7 @@
         "meta": null
       }
     ],
-    "cost": 1104
+    "cost": 542
   },
   "message": "ok"
 }
@@ -419,7 +419,7 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (75221 字符)</summary>
+<summary>点击展开查看完整响应 (75062 字符)</summary>
 
 ```json
 {
@@ -2620,11 +2620,6 @@
             {
               "name": "profile.util.js",
               "path": "src\\utils\\userProfile\\profile.util.js",
-              "type": "file"
-            },
-            {
-              "name": "syncUsers.js",
-              "path": "src\\utils\\userProfile\\syncUsers.js",
               "type": "file"
             }
           ]
@@ -2933,12 +2928,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -2971,8 +2966,8 @@
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4761,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770190648651_package.json"
+  "fileSize": 4726,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770628628177_package.json"
 }
 ```
 
@@ -3000,8 +2995,8 @@
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 46883,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770190648724.zip"
+  "fileSize": 47408,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770628628270.zip"
 }
 ```
 
@@ -3047,7 +3042,7 @@
 ```json
 {
   "userId": "test-user-123",
-  "date": "2026-02-04T07:37:28.730Z"
+  "date": "2026-02-09T09:17:08.280Z"
 }
 ```
 
@@ -3057,12 +3052,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -3092,12 +3087,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -3289,7 +3284,7 @@
 
 **结果**: ✅ 通过
 
-**备注**: 性能测试 - 响应时间: 4ms
+**备注**: 性能测试 - 响应时间: 6ms
 
 ---
 
@@ -3412,7 +3407,7 @@
         "meta": null
       }
     ],
-    "cost": 636
+    "cost": 232
   },
   "message": "ok"
 }
@@ -3690,7 +3685,7 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (75221 字符)</summary>
+<summary>点击展开查看完整响应 (75062 字符)</summary>
 
 ```json
 {
@@ -5892,11 +5887,6 @@
               "name": "profile.util.js",
               "path": "src\\utils\\userProfile\\profile.util.js",
               "type": "file"
-            },
-            {
-              "name": "syncUsers.js",
-              "path": "src\\utils\\userProfile\\syncUsers.js",
-              "type": "file"
             }
           ]
         },
@@ -6204,12 +6194,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -6242,8 +6232,8 @@
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4761,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770190649817_package.json"
+  "fileSize": 4726,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770628628827_package.json"
 }
 ```
 
@@ -6271,8 +6261,8 @@
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 46883,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770190649863.zip"
+  "fileSize": 47408,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770628628874.zip"
 }
 ```
 
@@ -6318,7 +6308,7 @@
 ```json
 {
   "userId": "test-user-123",
-  "date": "2026-02-04T07:37:29.867Z"
+  "date": "2026-02-09T09:17:08.879Z"
 }
 ```
 
@@ -6328,12 +6318,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -6363,12 +6353,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -6683,7 +6673,7 @@
         "meta": null
       }
     ],
-    "cost": 375
+    "cost": 221
   },
   "message": "ok"
 }
@@ -6961,7 +6951,7 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (75221 字符)</summary>
+<summary>点击展开查看完整响应 (75062 字符)</summary>
 
 ```json
 {
@@ -9163,11 +9153,6 @@
               "name": "profile.util.js",
               "path": "src\\utils\\userProfile\\profile.util.js",
               "type": "file"
-            },
-            {
-              "name": "syncUsers.js",
-              "path": "src\\utils\\userProfile\\syncUsers.js",
-              "type": "file"
             }
           ]
         },
@@ -9475,12 +9460,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -9513,8 +9498,8 @@
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4761,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770190650697_package.json"
+  "fileSize": 4726,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770628629403_package.json"
 }
 ```
 
@@ -9542,8 +9527,8 @@
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 46883,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770190650753.zip"
+  "fileSize": 47408,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770628629455.zip"
 }
 ```
 
@@ -9589,7 +9574,7 @@
 ```json
 {
   "userId": "test-user-123",
-  "date": "2026-02-04T07:37:30.759Z"
+  "date": "2026-02-09T09:17:09.462Z"
 }
 ```
 
@@ -9599,12 +9584,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -9634,12 +9619,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -9954,7 +9939,7 @@
         "meta": null
       }
     ],
-    "cost": 385
+    "cost": 217
   },
   "message": "ok"
 }
@@ -10232,7 +10217,7 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (75221 字符)</summary>
+<summary>点击展开查看完整响应 (75062 字符)</summary>
 
 ```json
 {
@@ -12434,11 +12419,6 @@
               "name": "profile.util.js",
               "path": "src\\utils\\userProfile\\profile.util.js",
               "type": "file"
-            },
-            {
-              "name": "syncUsers.js",
-              "path": "src\\utils\\userProfile\\syncUsers.js",
-              "type": "file"
             }
           ]
         },
@@ -12746,12 +12726,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -12784,8 +12764,8 @@
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4761,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770190651597_package.json"
+  "fileSize": 4726,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_download_1770628629983_package.json"
 }
 ```
 
@@ -12813,8 +12793,8 @@
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 46883,
-  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770190651633.zip"
+  "fileSize": 47408,
+  "downloadPath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\test_compress_1770628630031.zip"
 }
 ```
 
@@ -12860,7 +12840,7 @@
 ```json
 {
   "userId": "test-user-123",
-  "date": "2026-02-04T07:37:31.637Z"
+  "date": "2026-02-09T09:17:10.038Z"
 }
 ```
 
@@ -12870,12 +12850,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -12905,12 +12885,12 @@
 
 **响应体**:
 <details>
-<summary>点击展开查看完整响应 (3065 字符)</summary>
+<summary>点击展开查看完整响应 (2897 字符)</summary>
 
 ```json
 {
   "message": "Invalid authentication token",
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:427002)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.gXoWT (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:372823)\n    at Object.jHpCU (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:392445)\n    at Object.GpTEu (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:394634)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:396323\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:194544)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:204175)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:176666)\n    at Object.rebxX (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177887)\n    at Object.QaemL (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178227)\n    at _0x54b458 (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178959)\n    at Object.gJXmN (E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:177744)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:179335\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\json-bigint-extend\\dist\\index.js:1:178427"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:392434)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.XZmmz (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:337195)\n    at Object.DZjEI (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:359968)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:361604\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:186052)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:190898)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:167550)\n    at Object.ErzaA (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168315)\n    at Object.NFoMJ (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169243)\n    at _0x26df5f (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171085)\n    at Object.SeUvR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:168754)\n    at Object.doPlj (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:169946)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:171767\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:170017"
 }
 ```
 
@@ -13102,7 +13082,7 @@
 
 **结果**: ✅ 通过
 
-**备注**: 性能测试 - 响应时间: 6ms
+**备注**: 性能测试 - 响应时间: 4ms
 
 ---
 
