@@ -2,94 +2,6 @@ const redisUtil = require('@utils/redis.util');
 const prisma = require('@libs/prisma');
 const momentUtil = require('@utils/moment.util');
 
-class RemoveFlow {
-  constructor() {
-    this.CONFIG_KEY = 'rank:inactive_config';
-    this.DEFAULT_CONFIG = {
-      backupClearDays: 10, // 不活跃超过该天数可删除流水 backup 字段
-      minCleanLimit: 30, // 只要清理达到这个条数，就可以视为该表已"达标"并退出
-    };
-    this.baseTableName = 'tb_user_account_cash';
-
-    this.cleanConfigKey = '';
-  }
-
-  /**
-   * 生成按日期分表的表名
-   * @param {string} baseTable - 基础表名
-   * @param {number} time - 时间戳
-   * @returns {string} 带日期后缀的表名
-   */
-  getDayTable(baseTable, time) {
-    const day = momentUtil.createMoment(time).format('YYYYMMDD');
-    return `${baseTable}_${day}`;
-  }
-
-  /**
-   * 解析 JSON 字符串，失败返回 null
-   * @param {string} jsonString
-   * @returns {Object|null}
-   */
-  jsonParse(jsonString) {
-    try {
-      return JSON.parse(jsonString);
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * 获取不活跃检测配置
-   * @returns {Promise<Object>}
-   */
-  async getConfig() {
-    const cached = await redisUtil.get(this.CONFIG_KEY);
-    if (cached) {
-      return this.jsonParse(cached);
-    }
-    return { ...this.DEFAULT_CONFIG };
-  }
-
-  /**
-   * 计算用户距今未登录天数（印度时间自然天）
-   * @param {number} userId
-   * @returns {Promise<number|null>} 相差天数，无登录记录时返回 null
-   */
-  async getInactiveDays(userId) {
-    const userExtend = await prisma.tbUserInfoExtend.findUnique({
-      where: { userId },
-      select: {
-        lastLoginTime: true,
-      },
-    });
-
-    if (!userExtend || !userExtend.lastLoginTime || userExtend.lastLoginTime <= 0n) {
-      return null;
-    }
-
-    const lastLoginTime = Number(userExtend.lastLoginTime);
-    const nowDay = momentUtil.createMoment().startOf('day');
-    const lastLoginDay = momentUtil.createMoment(lastLoginTime).startOf('day');
-
-    return nowDay.diff(lastLoginDay, 'days');
-  }
-
-  /**
-   * 检查是否删除流水
-   * @param {number} userId
-   * @param {Object} options
-   * @returns {Promise<{remove: boolean}>}
-   */
-  async checkRemoveFlow(userId, options = {}) {
-    const conf = await this.getConfig();
-    const inactiveDays = await this.getInactiveDays(userId);
-    if (inactiveDays != null && inactiveDays >= conf.backupClearDays) {
-      return { remove: true };
-    }
-    return { remove: false };
-  }
-}
-
 /**
  * Redis 分布式可靠任务队列
  *
@@ -166,7 +78,12 @@ class RemoveFlowQueue {
    */
   async takeTask() {
     const rClient = redisUtil.getClient();
-    const taskId = await rClient.lMove(this.PENDING_KEY, this.WORKING_KEY, 'RIGHT', 'LEFT');
+    const taskId = await rClient.lMove(
+      this.PENDING_KEY,
+      this.WORKING_KEY,
+      'RIGHT',
+      'LEFT'
+    );
     if (!taskId) return null;
     // lMove 结果需先拿到才能写存根，无法合并管道
     await rClient.hSet(this.START_TIME_KEY, taskId, String(Date.now()));
@@ -179,7 +96,12 @@ class RemoveFlowQueue {
    * @returns {Promise<void>}
    */
   async ackTask(taskId) {
-    await redisUtil.getClient().multi().lRem(this.WORKING_KEY, 1, taskId).hDel(this.START_TIME_KEY, taskId).exec();
+    await redisUtil
+      .getClient()
+      .multi()
+      .lRem(this.WORKING_KEY, 1, taskId)
+      .hDel(this.START_TIME_KEY, taskId)
+      .exec();
   }
 
   /**
@@ -283,6 +205,185 @@ class RemoveFlowQueue {
       clearInterval(this._monitorTimer);
       this._monitorTimer = null;
     }
+  }
+}
+
+class RemoveFlow {
+  constructor() {
+    this.DEFAULT_CONFIG = {
+      backupClearDays: 10, // 不活跃超过该天数可删除流水 backup 字段
+      batchSize: 500, // 每次处理500条
+    };
+    this.baseTableName = 'tb_user_account_cash';
+
+    // 队列实例
+    this.queue = new RemoveFlowQueue();
+
+    this.removeFlowTimer = null;
+  }
+
+  /**
+   * 生成按日期分表的表名
+   * @param {string} baseTable - 基础表名
+   * @param {number} time - 时间戳
+   * @returns {string} 带日期后缀的表名
+   */
+  getDayTable(baseTable, time) {
+    const day = momentUtil.createMoment(time).format('YYYYMMDD');
+    return `${baseTable}_${day}`;
+  }
+
+  /**
+   * 解析 JSON 字符串，失败返回 null
+   * @param {string} jsonString
+   * @returns {Object|null}
+   */
+  jsonParse(jsonString) {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * 获取不活跃检测配置
+   * @returns {Promise<Object>}
+   */
+  async getConfig() {
+    const cached = await redisUtil.get(this.CONFIG_KEY);
+    if (cached) {
+      return this.jsonParse(cached);
+    }
+    return { ...this.DEFAULT_CONFIG };
+  }
+
+  /**
+   * 计算用户距今未登录天数（印度时间自然天）
+   * @param {number} userId
+   * @returns {Promise<number|null>} 相差天数，无登录记录时返回 null
+   */
+  async getInactiveDays(userId) {
+    const userExtend = await prisma.tbUserInfoExtend.findUnique({
+      where: { userId },
+      select: {
+        lastLoginTime: true,
+      },
+    });
+
+    if (
+      !userExtend ||
+      !userExtend.lastLoginTime ||
+      userExtend.lastLoginTime <= 0n
+    ) {
+      return null;
+    }
+
+    const lastLoginTime = Number(userExtend.lastLoginTime);
+    const nowDay = momentUtil.createMoment().startOf('day');
+    const lastLoginDay = momentUtil.createMoment(lastLoginTime).startOf('day');
+
+    return nowDay.diff(lastLoginDay, 'days');
+  }
+
+  /**
+   * 延迟一段时间
+   * @param {number} ms - 延迟时间（毫秒）
+   * @returns {Promise<void>}
+   */
+  async delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /*
+   * 删除指定用户的流水
+   * @param {number} userId - 用户ID
+   * @param {number} specifyDay - 指定日期
+   * @param {Object} options - 选项
+   * @param {number} options.startDay - 开始日期
+   * @returns {Promise<{success: boolean, error: string}>}
+   */
+  async removeSpecifyFlow(userId, specifyDay, options = {}) {
+    const conf = await this.getConfig();
+
+    try {
+      const dayTables = new Array(3).fill(null).map((_day, i) => {
+        return this.getDayTable(
+          this.baseTableName,
+          momentUtil.createMoment(specifyDay).subtract(i, 'day').valueOf()
+        );
+      });
+
+      for (const tableName of dayTables) {
+        let lastId = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+          // --- 阶段 A: 侦察并直接获取目标 ID ---
+          const selectSql = `
+            SELECT id FROM ${tableName} 
+            WHERE userId = ${userId} 
+              AND id > ${lastId} 
+              AND JSON_CONTAINS_PATH(meta, 'one', '$.backup', '$.backupOrigin') = 1 
+            ORDER BY id ASC 
+            LIMIT ${conf.batchSize}
+          `;
+
+          // eslint-disable-next-line no-await-in-loop
+          const targetRows = await prisma.$queryRawUnsafe(selectSql);
+
+          // 如果连一条符合条件的都没有，直接结束当前表的扫描
+          if (!targetRows || targetRows.length === 0) {
+            hasMore = false;
+            break;
+          }
+
+          // --- 阶段 B: 精确更新目标 ID ---
+          const ids = targetRows.map((row) => Number(row.id));
+          const idListStr = ids.join(',');
+
+          const updateSql = `
+            UPDATE ${tableName} 
+            SET meta = JSON_REMOVE(meta, '$.backup', '$.backupOrigin') 
+            WHERE id IN (${idListStr})
+          `;
+
+          // eslint-disable-next-line no-await-in-loop
+          await prisma.$executeRawUnsafe(updateSql);
+
+          // --- 阶段 C: 更新游标与边界判断 ---
+          lastId = ids[ids.length - 1];
+
+          // 核心逻辑：如果本次查出的条数小于 batchSize，说明该表后续已无符合条件的数据
+          if (ids.length < conf.batchSize) {
+            hasMore = false;
+          }
+
+          // 释放 Event Loop
+          // eslint-disable-next-line no-await-in-loop
+          await this.delay(1 * 1000);
+        }
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * 检查是否删除流水
+   * @param {number} userId
+   * @param {Object} options
+   * @returns {Promise<{remove: boolean}>}
+   */
+  async checkRemoveFlow(userId, options = {}) {
+    const conf = await this.getConfig();
+    const inactiveDays = await this.getInactiveDays(userId);
+    if (inactiveDays != null && inactiveDays >= conf.backupClearDays) {
+      return { remove: true, model: 'specify_flow' };
+    }
+    return { remove: false };
   }
 }
 
