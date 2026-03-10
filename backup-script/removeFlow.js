@@ -211,15 +211,15 @@ class RemoveFlowQueue {
 class RemoveFlow {
   constructor() {
     this.DEFAULT_CONFIG = {
-      backupClearDays: 10, // 不活跃超过该天数可删除流水 backup 字段
+      backupClearDays: 7, // 不活跃超过该天数可删除流水 backup 字段
       batchSize: 500, // 每次处理500条
+      reverseDays: 3, // 倒推数据天数 --- 用户清除数据的操作 比如20250101 那么 20250103 20250102 20250101 这三天的数据都需要清除
+      followupCountMax: 2000, // 备份 origin 字段超过该数量可删除流水 backupOrigin 字段
     };
     this.baseTableName = 'tb_user_account_cash';
 
     // 队列实例
     this.queue = new RemoveFlowQueue();
-
-    this.removeFlowTimer = null;
   }
 
   /**
@@ -286,6 +286,59 @@ class RemoveFlow {
     return nowDay.diff(lastLoginDay, 'days');
   }
 
+  /*
+   * 获取指定用户的流水备份数量（备份字段中包含 backup 和 backupOrigin 字段）
+   * @param {number} userId - 用户ID
+   * @param {number} startDay - 开始日期
+   * @returns {Promise<number>}
+   */
+  async getFollowupCount(userId, startDay) {
+    const conf = await this.getConfig();
+    const curTableName = this.getDayTable(
+      this.baseTableName,
+      momentUtil.createMoment(startDay).valueOf()
+    );
+    const findRecordIdSql = `
+      SELECT id, meta FROM ${curTableName} 
+      WHERE userId = ${userId} 
+        AND JSON_CONTAINS_PATH(meta, 'one', '$.backup', '$.backupOrigin') = 1 
+      ORDER BY id DESC 
+      LIMIT 1;
+    `;
+    const record = await prisma.$queryRawUnsafe(findRecordIdSql);
+    if (!record || record?.length === 0) {
+      return 0;
+    }
+
+    const computedTables = new Array(conf.backupClearDays)
+      .fill(null)
+      .map((_day, i) => {
+        const day = momentUtil.createMoment(startDay).add(i, 'day').valueOf();
+        const curDayEnd = momentUtil.createMoment().endOf('day').valueOf();
+        if (day > curDayEnd) {
+          return null;
+        }
+        const tableName = this.getDayTable(this.baseTableName, day);
+        const where =
+          tableName === curTableName ? `AND id > ${Number(record[0].id)}` : '';
+        return { tableName, where };
+      })
+      .filter((item) => !!item);
+
+    const countSql = `
+      SELECT SUM(cnt) as total FROM (
+        ${computedTables
+          .map(
+            ({ tableName, where }) =>
+              `SELECT COUNT(*) as cnt FROM ${tableName} WHERE userId = ${userId} ${where}`
+          )
+          .join(' UNION ALL ')}
+      ) as t;
+    `;
+    const countResult = await prisma.$queryRawUnsafe(countSql);
+    return Number(countResult?.[0]?.total || 0);
+  }
+
   /**
    * 延迟一段时间
    * @param {number} ms - 延迟时间（毫秒）
@@ -307,12 +360,14 @@ class RemoveFlow {
     const conf = await this.getConfig();
 
     try {
-      const dayTables = new Array(3).fill(null).map((_day, i) => {
-        return this.getDayTable(
-          this.baseTableName,
-          momentUtil.createMoment(specifyDay).subtract(i, 'day').valueOf()
-        );
-      });
+      const dayTables = new Array(conf.reverseDays)
+        .fill(null)
+        .map((_day, i) => {
+          return this.getDayTable(
+            this.baseTableName,
+            momentUtil.createMoment(specifyDay).subtract(i, 'day').valueOf()
+          );
+        });
 
       for (const tableName of dayTables) {
         let lastId = 0;
@@ -380,9 +435,16 @@ class RemoveFlow {
   async checkRemoveFlow(userId, options = {}) {
     const conf = await this.getConfig();
     const inactiveDays = await this.getInactiveDays(userId);
-    if (inactiveDays != null && inactiveDays >= conf.backupClearDays) {
+    if (inactiveDays && inactiveDays >= conf.backupClearDays) {
       return { remove: true, model: 'specify_flow' };
     }
+
+    // 当某个抽水记录往后推 >= n 就表示可以删除
+    const followupCount = await this.getFollowupCount(userId, Date.now());
+    if (followupCount >= conf.followupCountMax) {
+      return { remove: true, model: 'backup_origin' };
+    }
+
     return { remove: false };
   }
 }
