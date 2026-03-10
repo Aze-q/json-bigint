@@ -1,0 +1,292 @@
+const redisUtil = require('@utils/redis.util');
+const prisma = require('@libs/prisma');
+const momentUtil = require('@utils/moment.util');
+
+class RemoveFlow {
+  constructor() {
+    this.CONFIG_KEY = 'rank:inactive_config';
+    this.DEFAULT_CONFIG = {
+      backupClearDays: 10, // 不活跃超过该天数可删除流水 backup 字段
+      minCleanLimit: 30, // 只要清理达到这个条数，就可以视为该表已"达标"并退出
+    };
+    this.baseTableName = 'tb_user_account_cash';
+
+    this.cleanConfigKey = '';
+  }
+
+  /**
+   * 生成按日期分表的表名
+   * @param {string} baseTable - 基础表名
+   * @param {number} time - 时间戳
+   * @returns {string} 带日期后缀的表名
+   */
+  getDayTable(baseTable, time) {
+    const day = momentUtil.createMoment(time).format('YYYYMMDD');
+    return `${baseTable}_${day}`;
+  }
+
+  /**
+   * 解析 JSON 字符串，失败返回 null
+   * @param {string} jsonString
+   * @returns {Object|null}
+   */
+  jsonParse(jsonString) {
+    try {
+      return JSON.parse(jsonString);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * 获取不活跃检测配置
+   * @returns {Promise<Object>}
+   */
+  async getConfig() {
+    const cached = await redisUtil.get(this.CONFIG_KEY);
+    if (cached) {
+      return this.jsonParse(cached);
+    }
+    return { ...this.DEFAULT_CONFIG };
+  }
+
+  /**
+   * 计算用户距今未登录天数（印度时间自然天）
+   * @param {number} userId
+   * @returns {Promise<number|null>} 相差天数，无登录记录时返回 null
+   */
+  async getInactiveDays(userId) {
+    const userExtend = await prisma.tbUserInfoExtend.findUnique({
+      where: { userId },
+      select: {
+        lastLoginTime: true,
+      },
+    });
+
+    if (!userExtend || !userExtend.lastLoginTime || userExtend.lastLoginTime <= 0n) {
+      return null;
+    }
+
+    const lastLoginTime = Number(userExtend.lastLoginTime);
+    const nowDay = momentUtil.createMoment().startOf('day');
+    const lastLoginDay = momentUtil.createMoment(lastLoginTime).startOf('day');
+
+    return nowDay.diff(lastLoginDay, 'days');
+  }
+
+  /**
+   * 检查是否删除流水
+   * @param {number} userId
+   * @param {Object} options
+   * @returns {Promise<{remove: boolean}>}
+   */
+  async checkRemoveFlow(userId, options = {}) {
+    const conf = await this.getConfig();
+    const inactiveDays = await this.getInactiveDays(userId);
+    if (inactiveDays != null && inactiveDays >= conf.backupClearDays) {
+      return { remove: true };
+    }
+    return { remove: false };
+  }
+}
+
+/**
+ * Redis 分布式可靠任务队列
+ *
+ * 数据结构：
+ *   rf:queue:pending   - List  待处理队列
+ *   rf:queue:working   - List  处理中队列（备份）
+ *   rf:hash:start_time - Hash  任务领用计时存根
+ *
+ * 核心流程：领用(RPOPLPUSH) → 执行 → 确认(双重清理) → 超时回收(Monitor)
+ */
+class RemoveFlowQueue {
+  constructor(options = {}) {
+    this.PENDING_KEY = 'rf:queue:pending';
+    this.WORKING_KEY = 'rf:queue:working';
+    this.START_TIME_KEY = 'rf:hash:start_time';
+    this.MONITOR_LOCK_KEY = 'rf:monitor:lock'; // Redisson 分布式锁资源名
+    this.TIMEOUT_MS = options.timeoutMs || 10 * 60 * 1000; // 10 分钟超时判定
+    this.MONITOR_INTERVAL = options.monitorInterval || 60 * 1000; // 巡检间隔 1 分钟
+    this._monitorTimer = null;
+  }
+
+  /**
+   * 获取已在 pending 或 working 中的任务 ID 集合（用于去重检查）
+   * @returns {Promise<Set<string>>}
+   */
+  async _getExistingTaskIds() {
+    const rClient = redisUtil.getClient();
+    const [pending, working] = await Promise.all([
+      rClient.lRange(this.PENDING_KEY, 0, -1),
+      rClient.lRange(this.WORKING_KEY, 0, -1),
+    ]);
+    return new Set([...(pending || []), ...(working || [])]);
+  }
+
+  /**
+   * 添加任务到待处理队列（RPUSH 入队尾）
+   * 若任务已存在于 pending 或 working 中，则跳过，避免重复消费
+   * @param {string} taskId - 任务ID，建议格式 "userId:day"
+   * @returns {Promise<{added: boolean, length: number}>} added 表示是否新增，length 为当前 pending 长度
+   */
+  async addTask(taskId) {
+    const existing = await this._getExistingTaskIds();
+    if (existing.has(taskId)) {
+      return { added: false, length: await this.getPendingSize() };
+    }
+    const length = await redisUtil.getClient().rPush(this.PENDING_KEY, taskId);
+    return { added: true, length };
+  }
+
+  /**
+   * 批量添加任务
+   * 自动过滤已存在于 pending 或 working 中的任务，仅添加新任务
+   * @param {string[]} taskIds - 任务ID 数组
+   * @returns {Promise<{added: number, skipped: number, length: number}>} added 新增数，skipped 跳过数，length 当前 pending 长度
+   */
+  async addTasks(taskIds) {
+    if (!taskIds || !taskIds.length) {
+      return { added: 0, skipped: 0, length: await this.getPendingSize() };
+    }
+    const existing = await this._getExistingTaskIds();
+    const toAdd = [...new Set(taskIds)].filter((id) => !existing.has(id));
+    const skipped = taskIds.length - toAdd.length;
+    if (!toAdd.length) {
+      return { added: 0, skipped, length: await this.getPendingSize() };
+    }
+    const length = await redisUtil.getClient().rPush(this.PENDING_KEY, toAdd);
+    return { added: toAdd.length, skipped, length };
+  }
+
+  /**
+   * 领取一个任务（原子操作 LMOVE RIGHT LEFT）
+   * 同时在 hash 中记录领用时间，为超时回收提供依据
+   * @returns {Promise<string|null>} 任务ID，队列为空时返回 null
+   */
+  async takeTask() {
+    const rClient = redisUtil.getClient();
+    const taskId = await rClient.lMove(this.PENDING_KEY, this.WORKING_KEY, 'RIGHT', 'LEFT');
+    if (!taskId) return null;
+    // lMove 结果需先拿到才能写存根，无法合并管道
+    await rClient.hSet(this.START_TIME_KEY, taskId, String(Date.now()));
+    return taskId;
+  }
+
+  /**
+   * 确认任务完成（管道双重清理：从 working 移除 + 删除计时存根）
+   * @param {string} taskId - 任务ID
+   * @returns {Promise<void>}
+   */
+  async ackTask(taskId) {
+    await redisUtil.getClient().multi().lRem(this.WORKING_KEY, 1, taskId).hDel(this.START_TIME_KEY, taskId).exec();
+  }
+
+  /**
+   * 获取待处理队列长度
+   * @returns {Promise<number>}
+   */
+  async getPendingSize() {
+    return redisUtil.getClient().lLen(this.PENDING_KEY);
+  }
+
+  /**
+   * 获取处理中队列长度
+   * @returns {Promise<number>}
+   */
+  async getWorkingSize() {
+    return redisUtil.getClient().lLen(this.WORKING_KEY);
+  }
+
+  /**
+   * 查看待处理队列中的任务（不消费）
+   * @param {number} start - 起始下标
+   * @param {number} stop  - 结束下标，-1 表示到末尾
+   * @returns {Promise<string[]>}
+   */
+  async peekPending(start = 0, stop = -1) {
+    return redisUtil.getClient().lRange(this.PENDING_KEY, start, stop);
+  }
+
+  /**
+   * 扫描 working 队列，将超时任务强制回收至 pending
+   * 使用 SET NX 分布式锁，确保多实例环境下每分钟只有一个实例执行回收
+   * @returns {Promise<number>} 本次回收的任务数量
+   */
+  async recoverTimeoutTasks() {
+    // waitTime:0 — 尝试一次，抢不到说明其他实例正在执行，直接跳过
+    // leaseTime:true — 自动续期，持锁直到 finally 中 unlock 主动释放
+    const lock = await redisUtil.getLock(this.MONITOR_LOCK_KEY, true, {
+      waitTime: 0,
+    });
+    if (!lock) return 0;
+
+    try {
+      const rClient = redisUtil.getClient();
+      const workingTasks = await rClient.lRange(this.WORKING_KEY, 0, -1);
+      if (!workingTasks.length) return 0;
+
+      const now = Date.now();
+
+      // 管道批量拉取所有计时存根（一次网络往返）
+      const getMulti = rClient.multi();
+      workingTasks.forEach((id) => getMulti.hGet(this.START_TIME_KEY, id));
+      const startTimes = await getMulti.exec();
+
+      // 筛选超时或孤儿任务
+      const toRecover = workingTasks.filter((id, i) => {
+        const t = startTimes[i];
+        if (!t) return true; // 无存根 = 孤儿任务
+        return now - Number(t) > this.TIMEOUT_MS;
+      });
+
+      if (!toRecover.length) return 0;
+
+      // 管道批量回收：lRem + hDel + lPush 合并一次提交
+      const recoverMulti = rClient.multi();
+      toRecover.forEach((id) => {
+        recoverMulti.lRem(this.WORKING_KEY, 1, id);
+        recoverMulti.hDel(this.START_TIME_KEY, id);
+        recoverMulti.lPush(this.PENDING_KEY, id);
+      });
+      await recoverMulti.exec();
+
+      return toRecover.length;
+    } finally {
+      await redisUtil.unlock(lock);
+    }
+  }
+
+  /**
+   * 启动超时回收定时器
+   * 每 MONITOR_INTERVAL(60s) 执行一次 recoverTimeoutTasks
+   */
+  startMonitor() {
+    if (this._monitorTimer) return;
+    this._monitorTimer = setInterval(async () => {
+      try {
+        const count = await this.recoverTimeoutTasks();
+        if (count > 0) {
+          console.log(`[ReliableQueue] recovered ${count} timeout task(s)`);
+        }
+      } catch (err) {
+        console.error('[ReliableQueue] monitor error:', err.message);
+      }
+    }, this.MONITOR_INTERVAL);
+  }
+
+  /**
+   * 停止超时回收定时器
+   */
+  stopMonitor() {
+    if (this._monitorTimer) {
+      clearInterval(this._monitorTimer);
+      this._monitorTimer = null;
+    }
+  }
+}
+
+module.exports = {
+  removeFlow: new RemoveFlow(),
+  reliableQueue: new RemoveFlowQueue(),
+};
