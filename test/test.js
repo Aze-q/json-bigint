@@ -36,7 +36,7 @@ function signWithHmacMd5(data) {
 
 
 const build = ()=>{
-    const timestamp = Date.now();
+    const timestamp = Date.now() - (4 * 60 * 1000);
     const requestId = uuidv4();
     const operation = operationKeyMap.GetRedis;
     const sign = signWithHmacMd5(`timestamp=${timestamp}&operation=${operation}&requestId=${requestId}`);
