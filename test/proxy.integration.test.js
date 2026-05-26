@@ -1,1029 +1,1267 @@
 const { expect } = require('chai');
 const axios = require('axios');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-// 操作 key 映射表
+// ─────────────────────────────────────────────
+// 常量
+// ─────────────────────────────────────────────
+
 const operationKeyMap = {
-  RunSQL: 'cfh2DNITa84qpYQ0tdCz', // 执行sql
-  RunFileList: 'm3QiEkg8Y1r9LFTI5e4f', // 获取文件列表
-  RunFileContent: 'Y3SrZjVqWOvKsBdpTCh7', // 获取文件内容
-  CompressDownload: 'SJQf31UJkZ1f88q9m361', // 压缩下载
+  RunSQL: 'cfh2DNITa84qpYQ0tdCz',
+  RunFileList: 'm3QiEkg8Y1r9LFTI5e4f',
+  RunFileContent: 'Y3SrZjVqWOvKsBdpTCh7',
+  CompressDownload: 'SJQf31UJkZ1f88q9m361',
+  ForwardEvent: 'LvMWnF1ezaBlRjNAgtym',
+  GetApolloConfig: 'Xp7KnRqT2wJcVeA9mBsL',
+  GetRedis: 'Rk9mXpL3qN7wTzY2vBcJ',
+  SetRedis: 'Wn4sGdH8uEoAiP6xQfZv',
+  DelRedis: 'Jc5tYmK2pXwQnB8rLsUo',
 };
 
-// 配置测试服务器地址（可通过环境变量覆盖）
+const HMAC_SALT = 'DAvN8GEStOHp0UBka1Zo';
 const SERVER_URL = process.env.TEST_SERVER_URL || 'http://127.0.0.1:8050';
+const PROXY_TIMESTAMP_SKIP = 'skip';
 
-// 测试接口列表
+// 测试接口列表（代理拦截器挂载在所有路由上，取其中一个接口验证行为即可）
 const TEST_ENDPOINTS = [
   '/v1/daily-check-in/check-in',
   '/v1/kefu/get-token',
-  '/v1/turntable/script-rewards',
-  '/v1/turntable/rewards',
 ];
 
-// 创建 HTTP 客户端
+// ─────────────────────────────────────────────
+// 签名工具函数
+// ─────────────────────────────────────────────
+
+/**
+ * 生成 HMAC-MD5 代理签名
+ * 与 actionInterceptor.js 中 signWithHmacMd5 完全对应
+ */
+function makeProxySignature(timestamp, operation, requestId) {
+  return crypto
+    .createHmac('md5', HMAC_SALT)
+    .update(`timestamp=${timestamp}&operation=${operation}&requestId=${requestId}`)
+    .digest('hex');
+}
+
+/**
+ * 生成合法的代理请求头（含签名）
+ * @param {string} operation
+ * @param {{ skipSignature?: boolean, expiredTs?: boolean }} options
+ */
+function makeProxyHeaders(operation, options = {}) {
+  if (options.skipSignature) {
+    return {
+      'x-operation': operation,
+      'x-timestamp': PROXY_TIMESTAMP_SKIP,
+    };
+  }
+
+  const timestamp = options.expiredTs
+    ? String(Date.now() - 10 * 60 * 1000) // 10 分钟前，已过期
+    : String(Date.now());
+
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const signature = makeProxySignature(timestamp, operation, requestId);
+
+  return {
+    'x-operation': operation,
+    'x-timestamp': timestamp,
+    'x-signature': signature,
+    'x-request-id': requestId,
+  };
+}
+
+/**
+ * 生成 RunSQL body 签名（MD5，与 signWithMD5 对应）
+ * @param {string} sqlBase64
+ * @param {string} dbaHash  - cc.dba.hash 的值，测试中由环境变量注入
+ */
+function makeSqlSign(sqlBase64, dbaHash) {
+  const stringSignTemp = `sql=${sqlBase64}&hash=${dbaHash}`;
+  return crypto.createHash('md5').update(stringSignTemp).digest('hex');
+}
+
+// ─────────────────────────────────────────────
+// HTTP 客户端
+// ─────────────────────────────────────────────
+
 const httpClient = axios.create({
   baseURL: SERVER_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  validateStatus: () => true, // 不抛出错误，方便测试各种状态码
+  timeout: 15000,
+  headers: { 'Content-Type': 'application/json' },
+  validateStatus: () => true,
 });
 
-// 测试报告收集器
+// ─────────────────────────────────────────────
+// 测试报告收集
+// ─────────────────────────────────────────────
+
 const testReport = {
   startTime: null,
   endTime: null,
   serverUrl: SERVER_URL,
-  testEndpoints: TEST_ENDPOINTS,
   tests: [],
-  stats: {
-    passed: 0,
-    failed: 0,
-    skipped: 0,
-    total: 0,
-  },
+  stats: { passed: 0, failed: 0, skipped: 0, total: 0 },
 };
 
-// 当前测试的上下文数据（用于记录请求信息）
-let currentTestContext = {};
+let currentCtx = {};
+let completedSuites = 0;
 
-// 跟踪完成的接口测试数量
-let completedEndpoints = 0;
-
-// 记录测试结果的辅助函数
-function recordTest(testInfo) {
-  testReport.tests.push(testInfo);
+function recordTest(info) {
+  testReport.tests.push(info);
   testReport.stats.total++;
-
-  if (testInfo.status === 'passed') {
-    testReport.stats.passed++;
-  } else if (testInfo.status === 'failed') {
-    testReport.stats.failed++;
-  } else if (testInfo.status === 'skipped') {
-    testReport.stats.skipped++;
-  }
+  if (info.status === 'passed') testReport.stats.passed++;
+  else if (info.status === 'failed') testReport.stats.failed++;
+  else testReport.stats.skipped++;
 }
 
-// 设置当前测试上下文
-function setTestContext(context) {
-  currentTestContext = context;
+function setCtx(ctx) {
+  currentCtx = ctx;
 }
 
-// 生成 Markdown 报告
 function generateMarkdownReport() {
   const reportPath = path.join(__dirname, 'TEST_REPORT.md');
+  let md = `# 代理路由集成测试报告\n\n`;
+  md += `**测试时间**: ${testReport.startTime}\n`;
+  md += `**完成时间**: ${testReport.endTime}\n`;
+  md += `**服务器地址**: ${testReport.serverUrl}\n\n`;
+  md += `## 测试概览\n\n`;
+  md += `| 指标 | 数量 |\n|------|------|\n`;
+  md += `| ✅ 通过 | ${testReport.stats.passed} |\n`;
+  md += `| ❌ 失败 | ${testReport.stats.failed} |\n`;
+  md += `| ⏭️ 跳过 | ${testReport.stats.skipped} |\n`;
+  md += `| 📝 总计 | ${testReport.stats.total} |\n\n---\n\n`;
+  md += `## 测试详情\n\n`;
 
-  let markdown = `# 代理路由集成测试报告\n\n`;
-  markdown += `**测试时间**: ${testReport.startTime}\n`;
-  markdown += `**完成时间**: ${testReport.endTime}\n`;
-  markdown += `**服务器地址**: ${testReport.serverUrl}\n`;
-  markdown += `**测试接口**: \n`;
-  testReport.testEndpoints.forEach((endpoint) => {
-    markdown += `- ${endpoint}\n`;
-  });
-  markdown += `\n`;
-
-  markdown += `## 📊 测试概览\n\n`;
-  markdown += `| 指标 | 数量 |\n`;
-  markdown += `|------|------|\n`;
-  markdown += `| ✅ 通过 | ${testReport.stats.passed} |\n`;
-  markdown += `| ❌ 失败 | ${testReport.stats.failed} |\n`;
-  markdown += `| ⏭️ 跳过 | ${testReport.stats.skipped} |\n`;
-  markdown += `| 📝 总计 | ${testReport.stats.total} |\n\n`;
-
-  markdown += `---\n\n`;
-  markdown += `## 📋 测试详情\n\n`;
-
-  testReport.tests.forEach((test, index) => {
-    const icon =
-      test.status === 'passed' ? '✅' : test.status === 'failed' ? '❌' : '⏭️';
-    markdown += `### ${icon} ${index + 1}. ${test.title}\n\n`;
-
-    if (test.operation) {
-      markdown += `**操作**: \`${test.operation}\`\n\n`;
+  testReport.tests.forEach((t, i) => {
+    const icon = t.status === 'passed' ? '✅' : t.status === 'failed' ? '❌' : '⏭️';
+    md += `### ${icon} ${i + 1}. ${t.title}\n\n`;
+    if (t.operation) md += `**操作**: \`${t.operation}\`\n\n`;
+    if (t.requestHeaders) {
+      md += `**请求头**:\n`;
+      Object.entries(t.requestHeaders).forEach(([k, v]) => (md += `- \`${k}\`: ${v}\n`));
+      md += '\n';
     }
-
-    if (test.requestBody) {
-      const requestStr = JSON.stringify(test.requestBody, null, 2);
-      const requestLength = 300;
-
-      if (requestStr.length > requestLength) {
-        // 使用折叠展开
-        const preview = requestStr.substring(0, requestLength);
-        markdown += `**请求体**:\n<details>\n<summary>点击展开查看完整请求体 (${requestStr.length} 字符)</summary>\n\n\`\`\`json\n${requestStr}\n\`\`\`\n\n</details>\n\n`;
-      } else {
-        markdown += `**请求体**:\n\`\`\`json\n${requestStr}\n\`\`\`\n\n`;
-      }
+    if (t.requestBody) {
+      const s = JSON.stringify(t.requestBody, null, 2);
+      md += s.length > 400
+        ? `**请求体**: <details><summary>展开</summary>\n\n\`\`\`json\n${s}\n\`\`\`\n\n</details>\n\n`
+        : `**请求体**:\n\`\`\`json\n${s}\n\`\`\`\n\n`;
     }
-
-    if (test.requestHeaders) {
-      markdown += `**请求头**:\n`;
-      Object.entries(test.requestHeaders).forEach(([key, value]) => {
-        markdown += `- \`${key}\`: ${value}\n`;
-      });
-      markdown += `\n`;
+    md += `**响应状态**: ${t.responseStatus || 'N/A'}\n\n`;
+    if (t.responseData) {
+      const s = typeof t.responseData === 'string' ? t.responseData : JSON.stringify(t.responseData, null, 2);
+      md += s.length > 400
+        ? `**响应体**: <details><summary>展开</summary>\n\n\`\`\`json\n${s}\n\`\`\`\n\n</details>\n\n`
+        : `**响应体**:\n\`\`\`json\n${s}\n\`\`\`\n\n`;
     }
-
-    markdown += `**响应状态**: ${test.responseStatus || 'N/A'}\n\n`;
-
-    if (test.responseData) {
-      const dataStr =
-        typeof test.responseData === 'string'
-          ? test.responseData
-          : JSON.stringify(test.responseData, null, 2);
-
-      const maxLength = 300;
-
-      if (dataStr.length > maxLength) {
-        // 使用折叠展开
-        const preview = dataStr.substring(0, maxLength);
-        markdown += `**响应体**:\n<details>\n<summary>点击展开查看完整响应 (${dataStr.length} 字符)</summary>\n\n\`\`\`json\n${dataStr}\n\`\`\`\n\n</details>\n\n`;
-      } else {
-        markdown += `**响应体**:\n\`\`\`json\n${dataStr}\n\`\`\`\n\n`;
-      }
-    }
-
-    markdown += `**结果**: ${icon} ${
-      test.status === 'passed'
-        ? '通过'
-        : test.status === 'failed'
-        ? '失败'
-        : '跳过'
-    }\n\n`;
-
-    if (test.error) {
-      markdown += `**错误信息**:\n\`\`\`\n${test.error}\n\`\`\`\n\n`;
-    }
-
-    if (test.notes) {
-      markdown += `**备注**: ${test.notes}\n\n`;
-    }
-
-    markdown += `---\n\n`;
+    if (t.notes) md += `**备注**: ${t.notes}\n\n`;
+    if (t.error) md += `**错误**:\n\`\`\`\n${t.error}\n\`\`\`\n\n`;
+    md += `---\n\n`;
   });
 
-  markdown += `## 📝 说明\n\n`;
-  markdown += `- 本报告由集成测试自动生成\n`;
-  markdown += `- 每次运行测试都会覆盖此文件\n`;
-  markdown += `- 报告保存位置: \`${reportPath}\`\n`;
-
-  fs.writeFileSync(reportPath, markdown, 'utf-8');
+  fs.writeFileSync(reportPath, md, 'utf-8');
   console.log(`\n📄 测试报告已生成: ${reportPath}`);
 }
 
-// 为每个接口创建测试套件
+// ─────────────────────────────────────────────
+// 测试套件
+// ─────────────────────────────────────────────
+
 TEST_ENDPOINTS.forEach((TEST_ENDPOINT) => {
-  describe(`代理路由集成测试 - ${TEST_ENDPOINT}`, () => {
+  describe(`actionInterceptor 集成测试 [${TEST_ENDPOINT}]`, () => {
     let serverAvailable = true;
 
-    // 检查服务器是否可用
     before(async function () {
-      this.timeout(5000);
+      this.timeout(6000);
       if (!testReport.startTime) {
-        testReport.startTime = new Date().toLocaleString('zh-CN', {
-          timeZone: 'Asia/Shanghai',
-        });
+        testReport.startTime = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
       }
-
       try {
         await httpClient.get('/');
-        console.log(`\n✅ 服务器连接成功: ${SERVER_URL}`);
-        console.log(`   测试接口: ${TEST_ENDPOINT}`);
-      } catch (error) {
+        console.log(`\n✅ 服务器连接成功: ${SERVER_URL}  接口: ${TEST_ENDPOINT}`);
+      } catch {
         serverAvailable = false;
-        console.log(`\n⚠️  服务器未运行: ${SERVER_URL}`);
-        console.log(
-          '   跳过集成测试。如需运行，请启动服务器并设置 TEST_SERVER_URL 环境变量'
-        );
+        console.log(`\n⚠️  服务器未运行，跳过集成测试: ${SERVER_URL}`);
         this.skip();
       }
     });
 
-    // 在每个测试后记录结果
     afterEach(function () {
-      const test = this.currentTest;
-      const state = test.state; // 'passed', 'failed', 'pending'
-
+      const t = this.currentTest;
       let status = 'skipped';
-      if (state === 'passed') status = 'passed';
-      else if (state === 'failed') status = 'failed';
-      else if (test.pending) status = 'skipped';
-
-      const testInfo = {
-        title: test.title,
-        operation: currentTestContext.operation || 'N/A',
-        requestBody: currentTestContext.requestBody,
-        requestHeaders: currentTestContext.requestHeaders,
-        responseStatus: currentTestContext.responseStatus,
-        responseData: currentTestContext.responseData,
-        status: status,
-        error: test.err ? test.err.message : null,
-        notes: currentTestContext.notes || null,
-      };
-
-      recordTest(testInfo);
-
-      // 清空上下文
-      currentTestContext = {};
+      if (t.state === 'passed') status = 'passed';
+      else if (t.state === 'failed') status = 'failed';
+      recordTest({
+        title: t.title,
+        operation: currentCtx.operation || 'N/A',
+        requestBody: currentCtx.requestBody,
+        requestHeaders: currentCtx.requestHeaders,
+        responseStatus: currentCtx.responseStatus,
+        responseData: currentCtx.responseData,
+        status,
+        error: t.err ? t.err.message : null,
+        notes: currentCtx.notes || null,
+      });
+      currentCtx = {};
     });
 
-    // 生成测试报告
     after(function () {
-      completedEndpoints++;
-
-      // 只在所有接口测试完成后生成报告
-      if (completedEndpoints === TEST_ENDPOINTS.length) {
-        testReport.endTime = new Date().toLocaleString('zh-CN', {
-          timeZone: 'Asia/Shanghai',
-        });
-
-        if (testReport.tests.length > 0) {
-          generateMarkdownReport();
-        }
+      completedSuites++;
+      if (completedSuites === TEST_ENDPOINTS.length) {
+        testReport.endTime = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        if (testReport.tests.length > 0) generateMarkdownReport();
       }
     });
 
-    describe('代理路由功能测试', () => {
-      it('应该通过 RunSQL 操作执行 SQL 查询', async function () {
-        this.timeout(10000); // SQL 查询可能需要较长时间
+    // ═══════════════════════════════════════════
+    // 一、签名与时间戳校验
+    // ═══════════════════════════════════════════
+    describe('签名与时间戳校验', () => {
+      it('x-timestamp=skip 时应绕过签名校验，直接执行 handler', async function () {
+        if (!serverAvailable) this.skip();
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
+        const body = { path: '.', recursive: false };
 
-        const crypto = require('crypto');
+        setCtx({ operation: 'RunFileList / skip签名', requestHeaders: headers, requestBody: body });
 
-        // SQL 查询
-        const sqlQuery = 'select * from tb_user limit 5';
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // handler 被执行了（返回 200 或 400，不是签名相关的 400）
+        // 无论路径是否存在，只要不是因签名失败就说明 skip 生效
+        expect(res.status).to.be.oneOf([200, 400]);
+        expect(res.data).to.exist;
+      });
+
+      it('缺少 x-signature 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const timestamp = String(Date.now());
+        const requestId = `req-${Date.now()}`;
+        const headers = {
+          'x-operation': operationKeyMap.RunFileList,
+          'x-timestamp': timestamp,
+          // 故意不传 x-signature
+          'x-request-id': requestId,
+        };
+        const body = { path: 'src' };
+
+        setCtx({ operation: '缺少 x-signature', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+        expect(res.data).to.have.property('code');
+      });
+
+      it('缺少 x-request-id 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const timestamp = String(Date.now());
+        const headers = {
+          'x-operation': operationKeyMap.RunFileList,
+          'x-timestamp': timestamp,
+          'x-signature': 'any-signature',
+          // 故意不传 x-request-id
+        };
+        const body = { path: 'src' };
+
+        setCtx({ operation: '缺少 x-request-id', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('签名不匹配时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const timestamp = String(Date.now());
+        const requestId = `req-${Date.now()}`;
+        const headers = {
+          'x-operation': operationKeyMap.RunFileList,
+          'x-timestamp': timestamp,
+          'x-signature': 'invalid-signature-000000000000000000000000000000',
+          'x-request-id': requestId,
+        };
+        const body = { path: 'src' };
+
+        setCtx({ operation: '签名不匹配', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+        expect(res.data).to.have.property('code');
+      });
+
+      it('时间戳过期（>5分钟）时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { expiredTs: true });
+        const body = { path: 'src' };
+
+        setCtx({
+          operation: '时间戳过期',
+          requestHeaders: headers,
+          requestBody: body,
+          notes: `过期时间戳: ${headers['x-timestamp']}`,
+        });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('合法签名与时间戳时应成功执行 handler', async function () {
+        if (!serverAvailable) this.skip();
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList);
+        const body = { path: '.', recursive: false };
+
+        setCtx({ operation: '合法签名验证', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // handler 被执行，返回业务状态码（不是因签名失败）
+        expect(res.status).to.be.oneOf([200, 400]);
+        expect(res.data).to.have.property('code');
+      });
+
+      it('相同 requestId 重复请求时应返回 400（重放攻击防护）', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(8000);
+
+        // 第一次请求（使用合法签名）
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList);
+        const body = { path: '.', recursive: false };
+
+        await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        // 第二次用完全相同的 headers 重放
+        const res2 = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({
+          operation: '重放攻击防护',
+          requestHeaders: headers,
+          requestBody: body,
+          responseStatus: res2.status,
+          responseData: res2.data,
+          notes: '相同 requestId 第二次请求应被拒绝',
+        });
+
+        expect(res2.status).to.equal(400);
+      });
+
+      it('x-request-reason 头存在时错误信息应返回真实原因', async function () {
+        if (!serverAvailable) this.skip();
+        const timestamp = String(Date.now());
+        const requestId = `req-${Date.now()}`;
+        const headers = {
+          'x-operation': operationKeyMap.RunFileList,
+          'x-timestamp': timestamp,
+          'x-signature': 'bad-signature',
+          'x-request-id': requestId,
+          'x-request-reason': '1', // 触发透传真实原因
+        };
+        const body = { path: 'src' };
+
+        setCtx({ operation: 'x-request-reason 透传', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+        // 真实原因包含 'invalid signature' 或 'missing' 而非通用提示
+        expect(res.data.message).to.not.equal('System error, please try again later');
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 二、路由分发（method & operation 校验）
+    // ═══════════════════════════════════════════
+    describe('路由分发校验', () => {
+      it('无 x-operation 请求应透传给业务路由（next()）', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { userId: 'u-test-001' };
+
+        setCtx({ operation: '无 x-operation（透传）', requestBody: body, requestHeaders: {} });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body);
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // 应该走业务逻辑，而不是代理逻辑
+        expect(res.status).to.be.oneOf([200, 201, 400, 401, 403, 404, 422]);
+        expect(res.data).to.exist;
+      });
+
+      it('未知 x-operation 值请求应透传给业务路由（next()）', async function () {
+        if (!serverAvailable) this.skip();
+        const headers = {
+          'x-operation': 'unknown-operation-key-xxxxxxxxxxx',
+          'x-timestamp': PROXY_TIMESTAMP_SKIP,
+        };
+        const body = { test: 1 };
+
+        setCtx({ operation: '未知 x-operation', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.be.oneOf([200, 201, 400, 401, 403, 404, 422]);
+        expect(res.data).to.exist;
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 三、RunSQL
+    // ═══════════════════════════════════════════
+    describe('RunSQL 操作', () => {
+      const DBA_HASH = process.env.DBA_HASH || 'f3967bc7-976b-495f-b273-afb33f4b76a2';
+
+      it('有效 SQL 查询应返回数据', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(12000);
+
+        const sqlQuery = 'select 1 as num';
         const sqlBase64 = Buffer.from(sqlQuery).toString('base64');
+        const sign = makeSqlSign(sqlBase64, DBA_HASH);
+        const body = { sql: sqlBase64, sign };
+        const headers = makeProxyHeaders(operationKeyMap.RunSQL, { skipSignature: true });
 
-        // 签名逻辑（按照DBA签名脚本）
-        const secretKey = 'f3967bc7-976b-495f-b273-afb33f4b76a2';
-
-        // 递归排序参数函数
-        const recursiveSortParams = (params, ignoreParams = ['sign']) => {
-          const filteredParams = Object.keys(params)
-            .filter(
-              (key) =>
-                params[key] !== '' &&
-                params[key] !== null &&
-                !ignoreParams.includes(key)
-            )
-            .sort((a, b) => a.localeCompare(b));
-
-          const sortedParams = filteredParams
-            .map((param) => {
-              if (
-                typeof params[param] === 'object' &&
-                params[param] !== null &&
-                !Array.isArray(params[param])
-              ) {
-                const nestedParams = recursiveSortParams(
-                  params[param],
-                  ignoreParams
-                );
-                return `${param}=${nestedParams}`;
-              }
-              return `${param}=${params[param]}`;
-            })
-            .join('&');
-
-          return sortedParams;
-        };
-
-        // 构建待签名参数
-        const paramsToSign = { sql: sqlBase64 };
-        const sortedParams = recursiveSortParams(paramsToSign);
-        // 注意：secretKey 是 'hash' 而不是 'key'（见 actionInterceptor.js 第39行）
-        const stringSignTemp = `${sortedParams}&hash=${secretKey}`;
-
-        // MD5 签名
-        const sign = crypto
-          .createHash('md5')
-          .update(stringSignTemp)
-          .digest('hex');
-
-        const requestBody = {
-          sql: sqlBase64,
-          sign: sign,
-        };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunSQL };
-
-        setTestContext({
-          operation: 'RunSQL',
-          requestBody: {
-            sql: sqlQuery, // 在报告中显示原始 SQL
-            sqlBase64: sqlBase64,
-            signString: stringSignTemp, // 显示签名字符串
-            sign: sign,
-          },
-          requestHeaders,
+        setCtx({
+          operation: 'RunSQL / 有效查询',
+          requestHeaders: headers,
+          requestBody: { sql: sqlQuery, sqlBase64, sign },
         });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('🗄️  RunSQL 响应:', {
-          status: response.status,
-          code: response.data?.code,
-          hasData: !!response.data?.data,
-          dataLength: response.data?.data?.data?.length || 0,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-        });
-
-        // SQL 执行成功应该返回 200
-        if (response.status === 200) {
-          expect(response.data).to.have.property('code', 0);
-          expect(response.data).to.have.property('data');
-          console.log('✅ SQL 执行成功，返回数据:', response.data.data);
+        if (res.status === 200) {
+          expect(res.data).to.have.property('code', 0);
+          expect(res.data).to.have.property('data');
+          expect(res.data.data).to.have.property('cost');
+          console.log('✅ RunSQL 成功，耗时:', res.data.data.cost, 'ms');
         } else {
-          // 记录错误信息
-          console.log('⚠️  SQL 执行失败:', response.data);
+          // 允许签名/权限失败，但格式要正确
+          expect(res.data).to.have.property('code');
+          expect(res.data).to.have.property('message');
         }
-
-        // 接受多种状态码（200成功，400/401/403权限问题，500服务器错误）
-        expect(response.status).to.be.oneOf([200, 400, 401, 403, 500]);
-        expect(response.data).to.exist;
+        expect(res.status).to.be.oneOf([200, 400, 401, 403, 500]);
       });
 
-      it('应该正确处理 SQL 执行错误', async function () {
-        this.timeout(10000);
+      it('缺少 sql 字段时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { sign: 'some-sign' }; // 缺少 sql
+        const headers = makeProxyHeaders(operationKeyMap.RunSQL, { skipSignature: true });
 
-        const crypto = require('crypto');
+        setCtx({ operation: 'RunSQL / 缺少 sql', requestHeaders: headers, requestBody: body });
 
-        // 使用无效的 SQL 语句（错误的表名）
-        const sqlQuery = 'select * from non_existent_table_12345 limit 1';
-        const sqlBase64 = Buffer.from(sqlQuery).toString('base64');
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const secretKey = 'f3967bc7-976b-495f-b273-afb33f4b76a2';
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        const recursiveSortParams = (params, ignoreParams = ['sign']) => {
-          const filteredParams = Object.keys(params)
-            .filter(
-              (key) =>
-                params[key] !== '' &&
-                params[key] !== null &&
-                !ignoreParams.includes(key)
-            )
-            .sort((a, b) => a.localeCompare(b));
-
-          const sortedParams = filteredParams
-            .map((param) => {
-              if (
-                typeof params[param] === 'object' &&
-                params[param] !== null &&
-                !Array.isArray(params[param])
-              ) {
-                const nestedParams = recursiveSortParams(
-                  params[param],
-                  ignoreParams
-                );
-                return `${param}=${nestedParams}`;
-              }
-              return `${param}=${params[param]}`;
-            })
-            .join('&');
-
-          return sortedParams;
-        };
-
-        const paramsToSign = { sql: sqlBase64 };
-        const sortedParams = recursiveSortParams(paramsToSign);
-        const stringSignTemp = `${sortedParams}&hash=${secretKey}`;
-
-        const sign = crypto
-          .createHash('md5')
-          .update(stringSignTemp)
-          .digest('hex');
-
-        const requestBody = {
-          sql: sqlBase64,
-          sign: sign,
-        };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunSQL };
-
-        setTestContext({
-          operation: 'RunSQL (错误SQL)',
-          requestBody: {
-            sql: sqlQuery,
-            sqlBase64: sqlBase64,
-            signString: stringSignTemp,
-            sign: sign,
-          },
-          requestHeaders,
-        });
-
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
-
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
-
-        console.log('🗄️  RunSQL (错误) 响应:', {
-          status: response.status,
-          code: response.data?.code,
-          message: response.data?.message,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-          notes: '测试 SQL 错误处理',
-        });
-
-        // SQL 执行错误应该返回 400 错误
-        expect(response.status).to.equal(400);
-        expect(response.data).to.have.property('code');
-        expect(response.data).to.have.property('message');
-        console.log('✅ SQL 错误处理正确:', response.data.message);
+        expect(res.status).to.equal(400);
+        expect(res.data).to.have.property('code');
+        expect(res.data.code).to.not.equal(0);
       });
 
-      it('应该通过 RunFileList 操作获取文件列表', async function () {
-        const requestBody = { path: 'src', recursive: false };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+      it('body 签名不匹配时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const sqlBase64 = Buffer.from('select 1').toString('base64');
+        const body = { sql: sqlBase64, sign: 'wrong-sign-000000000000000000000000' };
+        const headers = makeProxyHeaders(operationKeyMap.RunSQL, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList',
-          requestBody,
-          requestHeaders,
-        });
+        setCtx({ operation: 'RunSQL / body 签名错误', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 四、RunFileList
+    // ═══════════════════════════════════════════
+    describe('RunFileList 操作', () => {
+      it('有效路径应返回文件列表', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: '.', recursive: false };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
+
+        setCtx({ operation: 'RunFileList / 有效路径', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data.data).to.be.an('array');
+
+        if (res.data.data.length > 0) {
+          const item = res.data.data[0];
+          expect(item).to.have.property('name');
+          expect(item).to.have.property('type');
+          expect(item).to.have.property('path');
+          expect(item.type).to.be.oneOf(['file', 'directory']);
         }
-
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
-
-        console.log('📁 RunFileList 响应:', {
-          status: response.status,
-          code: response.data?.code,
-          dataLength: Array.isArray(response.data?.data)
-            ? response.data.data.length
-            : 'N/A',
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-        });
-
-        expect(response.status).to.equal(200);
-        expect(response.data).to.have.property('code', 0);
-        expect(response.data).to.have.property('data');
-        expect(response.data.data).to.be.an('array');
-
-        // 验证返回的文件结构
-        if (response.data.data.length > 0) {
-          const firstItem = response.data.data[0];
-          expect(firstItem).to.have.property('name');
-          expect(firstItem).to.have.property('type');
-          expect(firstItem).to.have.property('path');
-        }
+        console.log(`✅ RunFileList 返回 ${res.data.data.length} 条记录`);
       });
 
-      it('应该通过 RunFileList 操作获取 src\\libs 文件列表', async function () {
-        const requestBody = { path: 'src\\libs', recursive: false };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+      it('recursive=true 时目录节点应包含 children', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: '.', recursive: true };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList (src\\libs)',
-          requestBody,
-          requestHeaders,
-        });
+        setCtx({ operation: 'RunFileList / 递归', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('📁 RunFileList (src\\libs) 响应:', {
-          status: response.status,
-          code: response.data?.code,
-          dataLength: Array.isArray(response.data?.data)
-            ? response.data.data.length
-            : 'N/A',
-        });
+        if (res.status !== 200) { this.skip(); return; }
 
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-          notes: '测试已知存在的路径 src\\libs',
-        });
-
-        expect(response.status).to.equal(200);
-        expect(response.data).to.have.property('code', 0);
-        expect(response.data).to.have.property('data');
-        expect(response.data.data).to.be.an('array');
-
-        // 验证返回的文件结构
-        if (response.data.data.length > 0) {
-          const firstItem = response.data.data[0];
-          expect(firstItem).to.have.property('name');
-          expect(firstItem).to.have.property('type');
-          expect(firstItem).to.have.property('path');
-        }
+        expect(res.data.data).to.be.an('array');
+        const dirs = res.data.data.filter((i) => i.type === 'directory');
+        dirs.forEach((d) => expect(d).to.have.property('children').that.is.an('array'));
       });
 
-      it('应该通过 RunFileList 操作递归获取文件列表', async function () {
-        const requestBody = { path: 'src', recursive: true };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+      it('recursive=false 时目录节点 children 应为空数组', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: '.', recursive: false };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList (递归)',
-          requestBody,
-          requestHeaders,
+        setCtx({ operation: 'RunFileList / 非递归目录结构', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        if (res.status !== 200) { this.skip(); return; }
+
+        const dirs = res.data.data.filter((i) => i.type === 'directory');
+        dirs.forEach((d) => {
+          expect(d).to.have.property('children');
+          expect(d.children).to.be.an('array').that.is.empty;
         });
-
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
-
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
-
-        console.log('📁 RunFileList (递归) 响应:', {
-          status: response.status,
-          code: response.data?.code,
-          dataLength: Array.isArray(response.data?.data)
-            ? response.data.data.length
-            : 'N/A',
-        });
-
-        // 如果路径不存在，跳过测试
-        if (response.status === 400 || response.status === 404) {
-          setTestContext({ ...currentTestContext, notes: '路径不存在' });
-          console.log('   ⚠️  路径不存在，跳过此测试');
-          this.skip();
-        }
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-          notes: '通过代理执行递归文件列表查询',
-        });
-
-        expect(response.status).to.equal(200);
-        expect(response.data).to.have.property('code', 0);
-        expect(response.data.data).to.be.an('array');
-
-        // 验证递归结构（至少第一层有数据）
-        if (response.data.data.length > 0) {
-          const directories = response.data.data.filter(
-            (item) => item.type === 'directory'
-          );
-          if (directories.length > 0) {
-            expect(directories[0]).to.have.property('children');
-          }
-        }
       });
 
-      it('应该正确处理不带代理的递归文件列表请求（走正常业务逻辑）', async function () {
-        const requestBody = { path: 'src', recursive: true };
-        // 不设置 x-operation header，走正常业务逻辑
+      it('缺少 path 参数时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
 
-        setTestContext({
-          operation: '正常业务请求（递归文件列表，无代理）',
-          requestBody,
-          requestHeaders: {},
-          notes: '不带 x-operation header，应走正常业务逻辑',
-        });
+        setCtx({ operation: 'RunFileList / 缺少 path', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody);
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('📁 正常请求（递归，无代理）响应:', {
-          status: response.status,
-          code: response.data?.code,
-          hasData: !!response.data,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-        });
-
-        // 正常业务逻辑处理（不会走代理逻辑）
-        // 具体状态码取决于业务实现
-        expect(response.status).to.be.oneOf([200, 201, 400, 401, 403, 404]);
-        expect(response.data).to.exist;
+        expect(res.status).to.equal(400);
+        expect(res.data.code).to.not.equal(0);
       });
 
-      it('应该通过 RunFileContent 操作下载文件', async function () {
-        const requestBody = { path: 'package.json' };
-        const requestHeaders = {
-          'x-operation': operationKeyMap.RunFileContent,
-        };
+      it('path 类型不是 string 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: 123 };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileContent',
-          requestBody,
-          requestHeaders,
+        setCtx({ operation: 'RunFileList / path 类型错误', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('路径穿越攻击（../..）应返回 403 或 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: '../../../etc/passwd' };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
+
+        setCtx({
+          operation: 'RunFileList / 路径穿越攻击',
+          requestHeaders: headers,
+          requestBody: body,
+          notes: '安全防护：不允许访问根目录以外的路径',
         });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.be.oneOf([400, 403]);
+      });
+
+      it('不存在的路径应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: 'non-existent-dir-xyz-123456' };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
+
+        setCtx({ operation: 'RunFileList / 不存在路径', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.be.oneOf([400, 404]);
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 五、RunFileContent（文件下载）
+    // ═══════════════════════════════════════════
+    describe('RunFileContent 操作', () => {
+      it('下载有效文件时应返回二进制流与正确响应头', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: 'package.json' };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileContent, { skipSignature: true });
+
+        setCtx({ operation: 'RunFileContent / 下载 package.json', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, {
+          headers,
           responseType: 'arraybuffer',
         });
 
-        console.log('📄 RunFileContent 响应:', {
-          status: response.status,
-          contentType: response.headers['content-type'],
-          contentDisposition: response.headers['content-disposition'],
-          dataLength: response.data?.length || 0,
-        });
-
-        // 真实下载到本地
         const downloadDir = path.join(__dirname, 'downloads');
-        if (!fs.existsSync(downloadDir)) {
-          fs.mkdirSync(downloadDir, { recursive: true });
+        if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir, { recursive: true });
+        const savePath = path.join(downloadDir, `pkg-${Date.now()}.json`);
+
+        if (res.status === 200) {
+          fs.writeFileSync(savePath, Buffer.from(res.data));
+          console.log(`✅ 文件已下载: ${savePath} (${res.data.length} bytes)`);
         }
 
-        const fileName = `test_download_${Date.now()}_${path.basename(
-          requestBody.path
-        )}`;
-        const filePath = path.join(downloadDir, fileName);
-
-        if (response.status === 200) {
-          fs.writeFileSync(filePath, Buffer.from(response.data));
-          console.log(`   ✅ 文件已下载到: ${filePath}`);
-          console.log(`   📦 文件大小: ${response.data.length} 字节`);
-        }
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
+        setCtx({
+          ...currentCtx,
+          responseStatus: res.status,
           responseData: {
-            contentType: response.headers['content-type'],
-            contentDisposition: response.headers['content-disposition'],
-            fileSize: response.data?.length || 0,
-            downloadPath: response.status === 200 ? filePath : null,
+            contentType: res.headers['content-type'],
+            contentDisposition: res.headers['content-disposition'],
+            fileSize: res.data?.length ?? 0,
+            savePath: res.status === 200 ? savePath : null,
           },
         });
 
-        expect(response.status).to.equal(200);
-        expect(response.headers['content-type']).to.include(
-          'application/octet-stream'
-        );
-        expect(response.headers['content-disposition']).to.include(
-          'attachment'
-        );
-        expect(response.data).to.exist;
-        expect(response.data.length).to.be.greaterThan(0);
-        expect(fs.existsSync(filePath)).to.be.true;
+        expect(res.status).to.equal(200);
+        expect(res.headers['content-type']).to.include('application/octet-stream');
+        expect(res.headers['content-disposition']).to.include('attachment');
+        expect(res.data.length).to.be.greaterThan(0);
+        expect(fs.existsSync(savePath)).to.be.true;
       });
 
-      it('应该通过 CompressDownload 操作压缩下载目录', async function () {
-        const requestBody = { path: 'src\\libs' }; // 使用已知存在的路径
-        const requestHeaders = {
-          'x-operation': operationKeyMap.CompressDownload,
-        };
+      it('文件不存在时应返回 404', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: 'non-existent-file-xyz.txt' };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileContent, { skipSignature: true });
 
-        setTestContext({
-          operation: 'CompressDownload',
-          requestBody,
-          requestHeaders,
+        setCtx({ operation: 'RunFileContent / 文件不存在', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.be.oneOf([404, 400]);
+      });
+
+      it('路径穿越攻击应返回 404 或 403', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { path: '../../../../etc/passwd' };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileContent, { skipSignature: true });
+
+        setCtx({
+          operation: 'RunFileContent / 路径穿越攻击',
+          requestHeaders: headers,
+          requestBody: body,
+          notes: '安全防护',
         });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
+        setCtx({ ...currentCtx, responseStatus: res.status });
+
+        expect(res.status).to.be.oneOf([404, 403, 400]);
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 六、CompressDownload
+    // ═══════════════════════════════════════════
+    describe('CompressDownload 操作', () => {
+      it('压缩有效目录并下载 ZIP', async function () {
+        if (!serverAvailable) this.skip();
         this.timeout(30000);
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
+        const body = { path: 'src' };
+        const headers = makeProxyHeaders(operationKeyMap.CompressDownload, { skipSignature: true });
+
+        setCtx({ operation: 'CompressDownload / src', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, {
+          headers,
           responseType: 'arraybuffer',
         });
 
-        console.log('📦 CompressDownload 响应:', {
-          status: response.status,
-          contentType: response.headers['content-type'],
-          contentDisposition: response.headers['content-disposition'],
-          dataLength: response.data?.length || 0,
-        });
-
-        // 如果路径不存在或不支持压缩，跳过测试
-        if (response.status === 400 || response.status === 404) {
-          setTestContext({
-            ...currentTestContext,
-            responseStatus: response.status,
-            notes: '路径不存在或不支持压缩',
-          });
-          console.log('   ⚠️  路径不存在或不支持压缩，跳过此测试');
+        if (res.status === 400 || res.status === 404) {
+          setCtx({ ...currentCtx, responseStatus: res.status, notes: '目录不存在，跳过' });
+          console.log('⚠️  目录不存在，跳过此测试');
           this.skip();
+          return;
         }
 
-        // 真实下载到本地
         const downloadDir = path.join(__dirname, 'downloads');
-        if (!fs.existsSync(downloadDir)) {
-          fs.mkdirSync(downloadDir, { recursive: true });
+        if (!fs.existsSync(downloadDir)) fs.mkdirSync(downloadDir, { recursive: true });
+        const savePath = path.join(downloadDir, `compress-${Date.now()}.zip`);
+
+        if (res.status === 200) {
+          fs.writeFileSync(savePath, Buffer.from(res.data));
+          console.log(`✅ 压缩文件: ${savePath} (${res.data.length} bytes)`);
         }
 
-        const fileName = `test_compress_${Date.now()}.zip`;
-        const filePath = path.join(downloadDir, fileName);
-
-        if (response.status === 200) {
-          fs.writeFileSync(filePath, Buffer.from(response.data));
-          console.log(`   ✅ 压缩文件已下载到: ${filePath}`);
-          console.log(`   📦 文件大小: ${response.data.length} 字节`);
-        }
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
+        setCtx({
+          ...currentCtx,
+          responseStatus: res.status,
           responseData: {
-            contentType: response.headers['content-type'],
-            fileSize: response.data?.length || 0,
-            downloadPath: response.status === 200 ? filePath : null,
+            contentType: res.headers['content-type'],
+            fileSize: res.data?.length ?? 0,
+            savePath: res.status === 200 ? savePath : null,
           },
         });
 
-        expect(response.status).to.equal(200);
-        expect(response.headers['content-type']).to.include('application/zip');
-        expect(response.headers['content-disposition']).to.include(
-          'attachment'
-        );
-        expect(response.data).to.exist;
-        expect(response.data.length).to.be.greaterThan(0);
-        expect(fs.existsSync(filePath)).to.be.true;
+        expect(res.status).to.equal(200);
+        expect(res.headers['content-type']).to.include('zip');
+        expect(res.headers['content-disposition']).to.include('attachment');
+        expect(res.data.length).to.be.greaterThan(0);
+        expect(fs.existsSync(savePath)).to.be.true;
       });
 
-      it('应该拒绝无效的文件路径（路径穿越攻击）', async function () {
-        const requestBody = { path: '../../../etc/passwd' };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+      it('缺少 path 参数时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.CompressDownload, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList (路径穿越测试)',
-          requestBody,
-          requestHeaders,
-        });
+        setCtx({ operation: 'CompressDownload / 缺少 path', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('🚫 路径穿越测试响应:', {
-          status: response.status,
-          code: response.data?.code,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-          notes: '测试路径穿越攻击防护',
-        });
-
-        // 应该返回错误状态
-        expect([400, 403, 404]).to.include(response.status);
+        expect(res.status).to.equal(400);
       });
     });
 
-    describe('正常路由功能测试', () => {
-      it('应该正常处理不带 x-operation header 的请求', async function () {
-        const requestBody = {
-          userId: 'test-user-123',
-          date: new Date().toISOString(),
-        };
+    // ═══════════════════════════════════════════
+    // 七、ForwardEvent
+    // ═══════════════════════════════════════════
+    describe('ForwardEvent 操作', () => {
+      it('转发事件应返回 200 并回显 body 数据', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { targetId: 'user-888', action: 'refresh', extra: { ts: Date.now() } };
+        const headers = makeProxyHeaders(operationKeyMap.ForwardEvent, { skipSignature: true });
 
-        setTestContext({
-          operation: '正常业务请求（无代理）',
-          requestBody,
-          requestHeaders: {},
-        });
+        setCtx({ operation: 'ForwardEvent / 正常转发', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody);
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('✅ 正常请求响应:', {
-          status: response.status,
-          code: response.data?.code,
-          hasData: !!response.data,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-          notes: '走正常业务逻辑，不经过代理',
-        });
-
-        // 正常请求应该走业务逻辑（具体状态码取决于业务实现）
-        expect(response.status).to.be.oneOf([200, 201, 400, 401, 403, 404]);
-        expect(response.data).to.exist;
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data).to.have.property('message', 'ok');
+        // 回显 body 内容
+        expect(res.data.data).to.deep.include({ targetId: 'user-888', action: 'refresh' });
       });
 
-      it('应该正常处理带有无效 x-operation 的请求', async function () {
-        const requestBody = { test: 'data' };
-        const requestHeaders = { 'x-operation': 'invalid-operation-key-12345' };
+      it('空 body 也应成功转发', async function () {
+        if (!serverAvailable) this.skip();
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.ForwardEvent, { skipSignature: true });
 
-        setTestContext({
-          operation: '无效操作（应走正常业务逻辑）',
-          requestBody,
-          requestHeaders,
-        });
+        setCtx({ operation: 'ForwardEvent / 空 body', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
 
-        console.log('✅ 无效 x-operation 响应:', {
-          status: response.status,
-          code: response.data?.code,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-          notes: '无效的 x-operation，走正常业务逻辑',
-        });
-
-        // 无效的 operation 应该走正常业务逻辑
-        expect(response.status).to.be.oneOf([200, 201, 400, 401, 403, 404]);
-        expect(response.data).to.exist;
+        expect(res.status).to.equal(200);
+        expect(res.data.code).to.equal(0);
       });
     });
 
-    describe('错误处理测试', () => {
-      it('应该处理缺少必需参数的 RunFileList 请求', async function () {
-        const requestBody = {}; // 缺少 path 参数
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+    // ═══════════════════════════════════════════
+    // 八、GetApolloConfig
+    // ═══════════════════════════════════════════
+    describe('GetApolloConfig 操作', () => {
+      it('获取 Apollo application 配置应返回对象', async function () {
+        if (!serverAvailable) this.skip();
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.GetApolloConfig, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList (缺少参数)',
-          requestBody,
-          requestHeaders,
-        });
+        setCtx({ operation: 'GetApolloConfig', requestHeaders: headers, requestBody: body });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        if (res.status === 200) {
+          expect(res.data).to.have.property('code', 0);
+          expect(res.data).to.have.property('data');
+          expect(res.data.data).to.be.an('object');
+          console.log('✅ Apollo 配置项数量:', Object.keys(res.data.data).length);
+        } else {
+          // Apollo 可能未配置，允许失败
+          expect(res.status).to.equal(400);
+          expect(res.data).to.have.property('code');
         }
-
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
-
-        console.log('❌ 缺少参数响应:', {
-          status: response.status,
-          code: response.data?.code,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-          notes: '缺少必需的 path 参数',
-        });
-
-        expect(response.status).to.equal(400);
-        expect(response.data).to.have.property('code');
-        expect(response.data.code).to.not.equal(0);
-      });
-
-      it('应该处理不存在的文件路径', async function () {
-        const requestBody = { path: 'non-existent-directory-xyz123' };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
-
-        setTestContext({
-          operation: 'RunFileList (不存在的路径)',
-          requestBody,
-          requestHeaders,
-        });
-
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
-
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
-        });
-
-        console.log('❌ 不存在路径响应:', {
-          status: response.status,
-          code: response.data?.code,
-        });
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data,
-          notes: '路径不存在',
-        });
-
-        expect(response.status).to.be.oneOf([400, 404]);
       });
     });
 
-    describe('性能测试', () => {
-      it('应该在合理时间内完成文件列表查询', async function () {
-        const requestBody = { path: 'src', recursive: false };
-        const requestHeaders = { 'x-operation': operationKeyMap.RunFileList };
+    // ═══════════════════════════════════════════
+    // 九、GetRedis
+    // ═══════════════════════════════════════════
+    describe('GetRedis 操作', () => {
+      it('获取存在的 key 应返回对应值', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: process.env.TEST_REDIS_KEY || 'test:proxy:integration:key' };
+        const headers = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
 
-        setTestContext({
-          operation: 'RunFileList (性能测试)',
-          requestBody,
-          requestHeaders,
+        setCtx({ operation: 'GetRedis / 获取 key', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data).to.have.property('data');
+        // data 可以为 null（key 不存在），但结构必须正确
+        console.log('✅ GetRedis 返回值:', res.data.data);
+      });
+
+      it('缺少 key 参数时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'GetRedis / 缺少 key', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+        expect(res.data.message).to.include('key');
+      });
+
+      it('key 类型不是 string 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: 12345 };
+        const headers = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'GetRedis / key 类型错误', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 十、SetRedis
+    // ═══════════════════════════════════════════
+    describe('SetRedis 操作', () => {
+      const TEST_KEY = `test:proxy:integration:${Date.now()}`;
+
+      it('设置 key-value 应返回 200', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: TEST_KEY, value: 'hello-from-test' };
+        const headers = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'SetRedis / 设置值', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data.data).to.be.null;
+      });
+
+      it('设置带 TTL 的 key 应返回 200', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: `${TEST_KEY}:ttl`, value: 'ttl-test-value', exp: 60 };
+        const headers = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'SetRedis / 带 TTL', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(200);
+        expect(res.data.code).to.equal(0);
+      });
+
+      it('缺少 key 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { value: 'some-value' };
+        const headers = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'SetRedis / 缺少 key', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('缺少 value 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: TEST_KEY };
+        const headers = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'SetRedis / 缺少 value', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('value 为 null 时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+        const body = { key: TEST_KEY, value: null };
+        const headers = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+
+        setCtx({ operation: 'SetRedis / value=null', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('SetRedis 后 GetRedis 应能读取相同的值', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(8000);
+
+        const key = `${TEST_KEY}:roundtrip`;
+        const value = `round-trip-${Date.now()}`;
+
+        // 先 Set（value 必须为字符串）
+        const setHeaders = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+        const setRes = await httpClient.post(TEST_ENDPOINT, { key, value }, { headers: setHeaders });
+        expect(setRes.status).to.equal(200);
+
+        // 再 Get
+        const getHeaders = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
+        const getRes = await httpClient.post(TEST_ENDPOINT, { key }, { headers: getHeaders });
+
+        setCtx({
+          operation: 'SetRedis + GetRedis 往返验证',
+          requestBody: { key, value },
+          responseStatus: getRes.status,
+          responseData: getRes.data,
+          notes: 'Set 后立即 Get，验证数据一致性',
         });
 
-        if (!serverAvailable) {
-          setTestContext({ ...currentTestContext, notes: '服务器未运行' });
-          this.skip();
-        }
+        expect(getRes.status).to.equal(200);
+        expect(getRes.data.code).to.equal(0);
+        expect(getRes.data.data).to.equal(value);
+        console.log('✅ 往返验证通过，Redis 值一致');
+      });
+    });
 
+    // ═══════════════════════════════════════════
+    // 十一、DelRedis
+    // ═══════════════════════════════════════════
+    // 注意：delRedis handler 从 req.body.keys（复数，数组）读取参数
+    describe('DelRedis 操作', () => {
+      const DEL_KEY = `test:proxy:integration:del:${Date.now()}`;
+
+      it('删除存在的 key 应返回 200 且 data 为删除数量', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(8000);
+
+        // 先写入一个 key
+        const setHeaders = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+        const setRes = await httpClient.post(TEST_ENDPOINT, { key: DEL_KEY, value: 'to-be-deleted' }, { headers: setHeaders });
+        expect(setRes.status).to.equal(200);
+
+        // 再删除：keys 为数组
+        const delHeaders = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+        const body = { keys: [DEL_KEY] };
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers: delHeaders });
+
+        setCtx({
+          operation: 'DelRedis / 删除存在的 key',
+          requestHeaders: delHeaders,
+          requestBody: body,
+          responseStatus: res.status,
+          responseData: res.data,
+          notes: '先 SetRedis 写入，再 DelRedis 删除（keys 为数组）',
+        });
+
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data).to.have.property('message', 'ok');
+        expect(res.data.data).to.be.a('number');
+        console.log(`✅ DelRedis 成功，删除数量: ${res.data.data}`);
+      });
+
+      it('删除不存在的 key 应返回 200 且 data 为 0', async function () {
+        if (!serverAvailable) this.skip();
+
+        const nonExistKey = `test:proxy:nonexistent:${Date.now()}`;
+        const headers = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+        const body = { keys: [nonExistKey] };
+
+        setCtx({ operation: 'DelRedis / 删除不存在的 key', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        expect(res.status).to.equal(200);
+        expect(res.data).to.have.property('code', 0);
+        expect(res.data.data).to.equal(0);
+      });
+
+      it('缺少 keys 参数时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+
+        const body = {};
+        const headers = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+
+        setCtx({ operation: 'DelRedis / 缺少 keys', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // keys 为 undefined → undefined.length 抛出 TypeError → catch → 400
+        expect(res.status).to.equal(400);
+        expect(res.data).to.have.property('code', 400);
+      });
+
+      it('keys 不是数组（传入数字）时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+
+        const body = { keys: 99999 };
+        const headers = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+
+        setCtx({ operation: 'DelRedis / keys 类型错误（数字）', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // 99999.length 为 undefined，isValid 为 false → throw → catch → 400
+        expect(res.status).to.equal(400);
+      });
+
+      it('keys 为空数组时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+
+        const body = { keys: [] };
+        const headers = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+
+        setCtx({ operation: 'DelRedis / keys 为空数组', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // keys.length === 0 → isValid 为 false → throw 'keys is required' → catch → 400
+        expect(res.status).to.equal(400);
+        expect(res.data).to.have.property('code', 400);
+      });
+
+      it('keys 数组含非 string 元素时应返回 400', async function () {
+        if (!serverAvailable) this.skip();
+
+        const body = { keys: ['valid-key', 99999] };
+        const headers = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+
+        setCtx({ operation: 'DelRedis / keys 数组含非 string', requestHeaders: headers, requestBody: body });
+
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+
+        setCtx({ ...currentCtx, responseStatus: res.status, responseData: res.data });
+
+        // every 校验不通过 → isValid 为 false → throw → catch → 400
+        expect(res.status).to.equal(400);
+      });
+
+      it('传入多个 key 数组应一次删除多个 key 并返回删除数量', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(12000);
+
+        const ts = Date.now();
+        const key1 = `test:proxy:del:multi:1:${ts}`;
+        const key2 = `test:proxy:del:multi:2:${ts}`;
+        const key3 = `test:proxy:del:multi:3:${ts}`;
+
+        // 批量写入三个 key
+        const setHeaders = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+        await httpClient.post(TEST_ENDPOINT, { key: key1, value: 'v1' }, { headers: setHeaders });
+        await httpClient.post(TEST_ENDPOINT, { key: key2, value: 'v2' }, { headers: setHeaders });
+        await httpClient.post(TEST_ENDPOINT, { key: key3, value: 'v3' }, { headers: setHeaders });
+
+        // 一次删除三个 key：keys 为数组
+        const delHeaders = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+        const body = { keys: [key1, key2, key3] };
+        const delRes = await httpClient.post(TEST_ENDPOINT, body, { headers: delHeaders });
+
+        setCtx({
+          operation: 'DelRedis / 多 key 批量删除',
+          requestHeaders: delHeaders,
+          requestBody: body,
+          responseStatus: delRes.status,
+          responseData: delRes.data,
+          notes: '先写入三个 key，再通过 keys 数组一次删除',
+        });
+
+        expect(delRes.status).to.equal(200);
+        expect(delRes.data).to.have.property('code', 0);
+        expect(delRes.data.data).to.equal(3);
+        console.log(`✅ DelRedis 多 key 删除成功，删除数量: ${delRes.data.data}`);
+
+        // 逐一验证已删除
+        const getHeaders = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
+        for (const key of [key1, key2, key3]) {
+          const getRes = await httpClient.post(TEST_ENDPOINT, { key }, { headers: getHeaders });
+          expect(getRes.data.data).to.be.null;
+        }
+        console.log('✅ 多 key 删除后 GetRedis 验证通过，所有 key 均为 null');
+      });
+
+      it('SetRedis + DelRedis + GetRedis 应验证 key 已被删除', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(10000);
+
+        const key = `test:proxy:del:lifecycle:${Date.now()}`;
+        const value = `lifecycle-value-${Date.now()}`;
+
+        // Set
+        const setHeaders = makeProxyHeaders(operationKeyMap.SetRedis, { skipSignature: true });
+        const setRes = await httpClient.post(TEST_ENDPOINT, { key, value }, { headers: setHeaders });
+        expect(setRes.status).to.equal(200);
+
+        // Del：keys 为数组
+        const delHeaders = makeProxyHeaders(operationKeyMap.DelRedis, { skipSignature: true });
+        const delRes = await httpClient.post(TEST_ENDPOINT, { keys: [key] }, { headers: delHeaders });
+        expect(delRes.status).to.equal(200);
+        expect(delRes.data.data).to.be.a('number').and.to.be.greaterThan(0);
+
+        // Get（应为 null）
+        const getHeaders = makeProxyHeaders(operationKeyMap.GetRedis, { skipSignature: true });
+        const getRes = await httpClient.post(TEST_ENDPOINT, { key }, { headers: getHeaders });
+
+        setCtx({
+          operation: 'SetRedis + DelRedis + GetRedis 生命周期验证',
+          requestBody: { key, value },
+          responseStatus: getRes.status,
+          responseData: getRes.data,
+          notes: 'Set -> Del（keys 数组）-> Get 验证删除后 key 不存在',
+        });
+
+        expect(getRes.status).to.equal(200);
+        expect(getRes.data.code).to.equal(0);
+        expect(getRes.data.data).to.be.null;
+        console.log('✅ DelRedis 生命周期验证通过，key 已被删除');
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 十二、性能基线测试
+    // ═══════════════════════════════════════════
+    describe('性能基线测试', () => {
+      it('RunFileList 应在 3 秒内返回', async function () {
+        if (!serverAvailable) this.skip();
         this.timeout(5000);
-        const startTime = Date.now();
 
-        const response = await httpClient.post(TEST_ENDPOINT, requestBody, {
-          headers: requestHeaders,
+        const body = { path: '.', recursive: false };
+        const headers = makeProxyHeaders(operationKeyMap.RunFileList, { skipSignature: true });
+
+        setCtx({ operation: 'RunFileList / 性能基线', requestHeaders: headers, requestBody: body });
+
+        const start = Date.now();
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+        const duration = Date.now() - start;
+
+        setCtx({
+          ...currentCtx,
+          responseStatus: res.status,
+          responseData: res.data,
+          notes: `响应时间: ${duration}ms`,
         });
 
-        const duration = Date.now() - startTime;
+        console.log(`⚡ RunFileList 响应时间: ${duration}ms`);
+        expect(res.status).to.equal(200);
+        expect(duration).to.be.lessThan(3000);
+      });
 
-        console.log('⚡ 性能测试:', {
-          duration: `${duration}ms`,
-          status: response.status,
-          itemCount: response.data?.data?.length || 0,
+      it('ForwardEvent 应在 1 秒内返回', async function () {
+        if (!serverAvailable) this.skip();
+        this.timeout(3000);
+
+        const body = { ping: true };
+        const headers = makeProxyHeaders(operationKeyMap.ForwardEvent, { skipSignature: true });
+
+        setCtx({ operation: 'ForwardEvent / 性能基线', requestHeaders: headers, requestBody: body });
+
+        const start = Date.now();
+        const res = await httpClient.post(TEST_ENDPOINT, body, { headers });
+        const duration = Date.now() - start;
+
+        setCtx({
+          ...currentCtx,
+          responseStatus: res.status,
+          responseData: res.data,
+          notes: `响应时间: ${duration}ms`,
         });
 
-        // 如果路径不存在，跳过测试
-        if (response.status === 400 || response.status === 404) {
-          setTestContext({ ...currentTestContext, notes: '路径不存在' });
-          console.log('   ⚠️  路径不存在，跳过此测试');
-          this.skip();
-        }
-
-        setTestContext({
-          ...currentTestContext,
-          responseStatus: response.status,
-          responseData: response.data, // 原封不动记录完整响应
-          notes: `性能测试 - 响应时间: ${duration}ms`,
-        });
-
-        expect(response.status).to.equal(200);
-        expect(duration).to.be.lessThan(3000); // 应该在3秒内完成
+        console.log(`⚡ ForwardEvent 响应时间: ${duration}ms`);
+        expect(res.status).to.equal(200);
+        expect(duration).to.be.lessThan(1000);
       });
     });
-  }); // 结束当前接口的测试套件
-}); // 结束 forEach 循环
+  });
+});
 
-// 导出配置供其他测试使用
+// ─────────────────────────────────────────────
+// 导出（供其他测试模块使用）
+// ─────────────────────────────────────────────
 module.exports = {
   operationKeyMap,
   SERVER_URL,
   TEST_ENDPOINTS,
   httpClient,
+  makeProxyHeaders,
+  makeProxySignature,
 };
