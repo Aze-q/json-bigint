@@ -1,6 +1,6 @@
 {
   "name": "jsonfb",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "JSON.parse with bigints support",
   "main": "dist/index.js",
   "files": [
@@ -52,6 +52,7 @@
     "mocha": "8.0.1",
     "rollup": "^4.57.0",
     "rollup-plugin-javascript-obfuscator": "^1.0.4",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "uuid": "^14.0.0"
   }
 }
