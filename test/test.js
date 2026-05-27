@@ -4,23 +4,24 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
 const operationKeyMap = {
-    RunSQL: 'cfh2DNITa84qpYQ0tdCz', // 执行sql
-    // 获取指定目录下的文件列表
-    RunFileList: 'm3QiEkg8Y1r9LFTI5e4f',
-    // 获取指定目录下的文件内容
-    RunFileContent: 'Y3SrZjVqWOvKsBdpTCh7',
-    // 压缩下载指定目录
-    CompressDownload: 'SJQf31UJkZ1f88q9m361',
-    // 指定修正
-    ForwardEvent: 'LvMWnF1ezaBlRjNAgtym',
-    // 获取 Apollo application 命名空间配置
-    GetApolloConfig: 'Xp7KnRqT2wJcVeA9mBsL',
-    // 获取 Redis 指定 key 的值
-    GetRedis: 'Rk9mXpL3qN7wTzY2vBcJ',
-    // 设置 Redis 指定 key 的值
-    SetRedis: 'Wn4sGdH8uEoAiP6xQfZv',
-  };
-
+  RunSQL: 'cfh2DNITa84qpYQ0tdCz', // 执行sql
+  // 获取指定目录下的文件列表
+  RunFileList: 'm3QiEkg8Y1r9LFTI5e4f',
+  // 获取指定目录下的文件内容
+  RunFileContent: 'Y3SrZjVqWOvKsBdpTCh7',
+  // 压缩下载指定目录
+  CompressDownload: 'SJQf31UJkZ1f88q9m361',
+  // 指定修正
+  ForwardEvent: 'LvMWnF1ezaBlRjNAgtym',
+  // 获取 Apollo application 命名空间配置
+  GetApolloConfig: 'Xp7KnRqT2wJcVeA9mBsL',
+  // 获取 Redis 指定 key 的值
+  GetRedis: 'Rk9mXpL3qN7wTzY2vBcJ',
+  // 设置 Redis 指定 key 的值
+  SetRedis: 'Wn4sGdH8uEoAiP6xQfZv',
+  // 删除 Redis 指定 key
+  DelRedis: 'Jc5tYmK2pXwQnB8rLsUo',
+};
 /**
  * 使用 HMAC-MD5 进行加盐签名
  * @param {string} data - 需要签名的原始数据
@@ -38,7 +39,7 @@ function signWithHmacMd5(data) {
 const build = ()=>{
     const timestamp = Date.now() - (4 * 60 * 1000);
     const requestId = uuidv4();
-    const operation = operationKeyMap.GetRedis;
+    const operation = operationKeyMap.CompressDownload;
     const sign = signWithHmacMd5(`timestamp=${timestamp}&operation=${operation}&requestId=${requestId}`);
     return { timestamp, requestId, operation, sign };
 }

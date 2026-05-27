@@ -1,15 +1,15 @@
 # 代理路由集成测试报告
 
-**测试时间**: 2026/5/26 20:01:59
-**完成时间**: 2026/5/26 20:02:01
+**测试时间**: 2026/5/27 11:15:22
+**完成时间**: 2026/5/27 11:15:24
 **服务器地址**: http://127.0.0.1:8050
 
 ## 测试概览
 
 | 指标 | 数量 |
 |------|------|
-| ✅ 通过 | 92 |
-| ❌ 失败 | 2 |
+| ✅ 通过 | 94 |
+| ❌ 失败 | 0 |
 | ⏭️ 跳过 | 0 |
 | 📝 总计 | 94 |
 
@@ -280,11 +280,6 @@
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -304,8 +299,8 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919640
-- `x-request-id`: req-1779796919640
+- `x-timestamp`: 1779851722592
+- `x-request-id`: req-1779851722592
 
 **请求体**:
 ```json
@@ -332,7 +327,7 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919647
+- `x-timestamp`: 1779851722601
 - `x-signature`: any-signature
 
 **请求体**:
@@ -360,9 +355,9 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919652
+- `x-timestamp`: 1779851722606
 - `x-signature`: invalid-signature-000000000000000000000000000000
-- `x-request-id`: req-1779796919652
+- `x-request-id`: req-1779851722606
 
 **请求体**:
 ```json
@@ -389,9 +384,9 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796319657
-- `x-signature`: 0b1a3fee9c267bed0b702aa28a870c4d
-- `x-request-id`: req-1779796919657-azpyye5b
+- `x-timestamp`: 1779851122612
+- `x-signature`: b773abf6403774f5845bac80bc09b78d
+- `x-request-id`: req-1779851722612-c3wjfvyc
 
 **请求体**:
 ```json
@@ -410,7 +405,7 @@
 }
 ```
 
-**备注**: 过期时间戳: 1779796319657
+**备注**: 过期时间戳: 1779851122612
 
 ---
 
@@ -420,9 +415,9 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919663
-- `x-signature`: fa7eab34630d7f533911f740599a86e6
-- `x-request-id`: req-1779796919663-fsujvx8r
+- `x-timestamp`: 1779851722617
+- `x-signature`: 4081d860ad204172f3b29cc53391dc70
+- `x-request-id`: req-1779851722617-i1qdg4ch
 
 **请求体**:
 ```json
@@ -679,11 +674,6 @@
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -703,9 +693,9 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919673
-- `x-signature`: 5a46c513dac7f65d33346ac8e13d8185
-- `x-request-id`: req-1779796919673-bn7n9cfq
+- `x-timestamp`: 1779851722628
+- `x-signature`: 08aadbbeba66dd70afb9d7859cc949e5
+- `x-request-id`: req-1779851722628-bb2dbojk
 
 **请求体**:
 ```json
@@ -735,9 +725,9 @@
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796919691
+- `x-timestamp`: 1779851722645
 - `x-signature`: bad-signature
-- `x-request-id`: req-1779796919691
+- `x-request-id`: req-1779851722645
 - `x-request-reason`: 1
 
 **请求体**:
@@ -780,7 +770,7 @@
 {
   "message": "Invalid authentication token",
   "data": {},
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:499987)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.vlHRB (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:422847)\n    at Object.iGfZU (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:471009)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:473716\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:243374)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:247686)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:220387)\n    at Object.aDlNP (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221381)\n    at Object.TFjDR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221779)\n    at _0x382074 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222495)\n    at Object.IRvvm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221238)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222844\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222297\n    at _0x2ebe98 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:469569)"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:498245)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.QGpvS (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:410647)\n    at Object.UVEkm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:461112)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:464575\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:228613)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:234960)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:207439)\n    at Object.zRtIe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208004)\n    at Object.rFegY (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208907)\n    at _0x20d55b (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209217)\n    at Object.xtVJh (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208205)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209593\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208685\n    at _0x327834 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:459052)"
 }
 ```
 
@@ -811,7 +801,7 @@
 {
   "message": "Invalid authentication token",
   "data": {},
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:499987)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.vlHRB (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:422847)\n    at Object.iGfZU (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:471009)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:473716\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:243374)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:247686)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:220387)\n    at Object.aDlNP (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221381)\n    at Object.TFjDR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221779)\n    at _0x382074 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222495)\n    at Object.IRvvm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221238)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222844\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222297\n    at _0x2ebe98 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:469569)"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:498245)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.QGpvS (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:410647)\n    at Object.UVEkm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:461112)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:464575\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:228613)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:234960)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:207439)\n    at Object.zRtIe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208004)\n    at Object.rFegY (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208907)\n    at _0x20d55b (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209217)\n    at Object.xtVJh (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208205)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209593\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208685\n    at _0x327834 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:459052)"
 }
 ```
 
@@ -1172,11 +1162,6 @@
       "path": "tools",
       "type": "directory",
       "children": []
-    },
-    {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
     },
     {
       "name": "yarn.lock",
@@ -1721,33 +1706,7 @@
               "name": "dist",
               "path": ".yalc\\jsonfb\\dist",
               "type": "directory",
-              "children": [
-                {
-                  "name": "index.js",
-                  "path": ".yalc\\jsonfb\\dist\\index.js",
-                  "type": "file"
-                }
-              ]
-            },
-            {
-              "name": "LICENSE",
-              "path": ".yalc\\jsonfb\\LICENSE",
-              "type": "file"
-            },
-            {
-              "name": "package.json",
-              "path": ".yalc\\jsonfb\\package.json",
-              "type": "file"
-            },
-            {
-              "name": "README.md",
-              "path": ".yalc\\jsonfb\\README.md",
-              "type": "file"
-            },
-            {
-              "name": "yalc.sig",
-              "path": ".yalc\\jsonfb\\yalc.sig",
-              "type": "file"
+              "children": []
             }
           ]
         }
@@ -5754,11 +5713,6 @@
       ]
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -6035,11 +5989,6 @@
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -6183,8 +6132,8 @@
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4818,
-  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\pkg-1779796919826.json"
+  "fileSize": 4807,
+  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\pkg-1779851722764.json"
 }
 ```
 
@@ -6258,8 +6207,8 @@
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 1073007,
-  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\compress-1779796920523.zip"
+  "fileSize": 1073015,
+  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\compress-1779851723394.zip"
 }
 ```
 
@@ -6304,7 +6253,7 @@
   "targetId": "user-888",
   "action": "refresh",
   "extra": {
-    "ts": 1779796920530
+    "ts": 1779851723404
   }
 }
 ```
@@ -6320,7 +6269,7 @@
     "targetId": "user-888",
     "action": "refresh",
     "extra": {
-      "ts": 1779796920530
+      "ts": 1779851723404
     }
   }
 }
@@ -7359,7 +7308,7 @@
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549",
+  "key": "test:proxy:integration:1779851722498",
   "value": "hello-from-test"
 }
 ```
@@ -7388,7 +7337,7 @@
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549:ttl",
+  "key": "test:proxy:integration:1779851722498:ttl",
   "value": "ttl-test-value",
   "exp": 60
 }
@@ -7445,7 +7394,7 @@
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549"
+  "key": "test:proxy:integration:1779851722498"
 }
 ```
 
@@ -7472,7 +7421,7 @@
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549",
+  "key": "test:proxy:integration:1779851722498",
   "value": null
 }
 ```
@@ -7496,8 +7445,8 @@
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549:roundtrip",
-  "value": "round-trip-1779796920585"
+  "key": "test:proxy:integration:1779851722498:roundtrip",
+  "value": "round-trip-1779851723470"
 }
 ```
 
@@ -7507,7 +7456,7 @@
 ```json
 {
   "code": 0,
-  "data": "round-trip-1779796920585",
+  "data": "round-trip-1779851723470",
   "message": "ok"
 }
 ```
@@ -7528,7 +7477,7 @@
 ```json
 {
   "keys": [
-    "test:proxy:integration:del:1779796919549"
+    "test:proxy:integration:del:1779851722498"
   ]
 }
 ```
@@ -7560,7 +7509,7 @@
 ```json
 {
   "keys": [
-    "test:proxy:nonexistent:1779796920617"
+    "test:proxy:nonexistent:1779851723489"
   ]
 }
 ```
@@ -7687,7 +7636,7 @@
 
 ---
 
-### ❌ 44. 传入多个 key 数组应一次删除多个 key 并返回删除数量
+### ✅ 44. 传入多个 key 数组应一次删除多个 key 并返回删除数量
 
 **操作**: `DelRedis / 多 key 批量删除`
 
@@ -7699,9 +7648,9 @@
 ```json
 {
   "keys": [
-    "test:proxy:del:multi:1:1779796920638",
-    "test:proxy:del:multi:2:1779796920638",
-    "test:proxy:del:multi:3:1779796920638"
+    "test:proxy:del:multi:1:1779851723508",
+    "test:proxy:del:multi:2:1779851723508",
+    "test:proxy:del:multi:3:1779851723508"
   ]
 }
 ```
@@ -7712,17 +7661,12 @@
 ```json
 {
   "code": 0,
-  "data": 1,
+  "data": 3,
   "message": "ok"
 }
 ```
 
 **备注**: 先写入三个 key，再通过 keys 数组一次删除
-
-**错误**:
-```
-expected 1 to equal 3
-```
 
 ---
 
@@ -7733,8 +7677,8 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:del:lifecycle:1779796920658",
-  "value": "lifecycle-value-1779796920658"
+  "key": "test:proxy:del:lifecycle:1779851723533",
+  "value": "lifecycle-value-1779851723533"
 }
 ```
 
@@ -8016,11 +7960,6 @@ expected 1 to equal 3
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -8032,7 +7971,7 @@ expected 1 to equal 3
 
 </details>
 
-**备注**: 响应时间: 6ms
+**备注**: 响应时间: 5ms
 
 ---
 
@@ -8064,7 +8003,7 @@ expected 1 to equal 3
 }
 ```
 
-**备注**: 响应时间: 4ms
+**备注**: 响应时间: 12ms
 
 ---
 
@@ -8331,11 +8270,6 @@ expected 1 to equal 3
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -8355,8 +8289,8 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920698
-- `x-request-id`: req-1779796920698
+- `x-timestamp`: 1779851723579
+- `x-request-id`: req-1779851723579
 
 **请求体**:
 ```json
@@ -8383,7 +8317,7 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920703
+- `x-timestamp`: 1779851723583
 - `x-signature`: any-signature
 
 **请求体**:
@@ -8411,9 +8345,9 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920707
+- `x-timestamp`: 1779851723586
 - `x-signature`: invalid-signature-000000000000000000000000000000
-- `x-request-id`: req-1779796920707
+- `x-request-id`: req-1779851723587
 
 **请求体**:
 ```json
@@ -8440,9 +8374,9 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796320711
-- `x-signature`: f1ce3cc12777ab5d3e34609fdd65d25a
-- `x-request-id`: req-1779796920711-p13zw7lo
+- `x-timestamp`: 1779851123590
+- `x-signature`: 774c777fde406e9882fb2ab221afc121
+- `x-request-id`: req-1779851723590-64p6edb6
 
 **请求体**:
 ```json
@@ -8461,7 +8395,7 @@ expected 1 to equal 3
 }
 ```
 
-**备注**: 过期时间戳: 1779796320711
+**备注**: 过期时间戳: 1779851123590
 
 ---
 
@@ -8471,9 +8405,9 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920715
-- `x-signature`: 9081a7cedaf1fefad00c48e7c1be28f6
-- `x-request-id`: req-1779796920715-6qzg4yc0
+- `x-timestamp`: 1779851723596
+- `x-signature`: 4a6f4bcec905d2861b5377cb3c272ade
+- `x-request-id`: req-1779851723596-7mlmnhr7
 
 **请求体**:
 ```json
@@ -8730,11 +8664,6 @@ expected 1 to equal 3
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -8754,9 +8683,9 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920725
-- `x-signature`: 17a6fdbb821feca467be419152c2bdf5
-- `x-request-id`: req-1779796920725-4585txtm
+- `x-timestamp`: 1779851723605
+- `x-signature`: 60af2d511823e0104b0382eb7ce14d6d
+- `x-request-id`: req-1779851723605-dew4b50v
 
 **请求体**:
 ```json
@@ -8786,9 +8715,9 @@ expected 1 to equal 3
 
 **请求头**:
 - `x-operation`: m3QiEkg8Y1r9LFTI5e4f
-- `x-timestamp`: 1779796920736
+- `x-timestamp`: 1779851723622
 - `x-signature`: bad-signature
-- `x-request-id`: req-1779796920736
+- `x-request-id`: req-1779851723622
 - `x-request-reason`: 1
 
 **请求体**:
@@ -8831,7 +8760,7 @@ expected 1 to equal 3
 {
   "message": "Invalid authentication token",
   "data": {},
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:499987)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.vlHRB (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:422847)\n    at Object.iGfZU (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:471009)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:473716\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:243374)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:247686)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:220387)\n    at Object.aDlNP (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221381)\n    at Object.TFjDR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221779)\n    at _0x382074 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222495)\n    at Object.IRvvm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221238)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222844\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222297\n    at _0x2ebe98 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:469569)"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:498245)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.QGpvS (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:410647)\n    at Object.UVEkm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:461112)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:464575\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:228613)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:234960)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:207439)\n    at Object.zRtIe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208004)\n    at Object.rFegY (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208907)\n    at _0x20d55b (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209217)\n    at Object.xtVJh (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208205)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209593\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208685\n    at _0x327834 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:459052)"
 }
 ```
 
@@ -8862,7 +8791,7 @@ expected 1 to equal 3
 {
   "message": "Invalid authentication token",
   "data": {},
-  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:499987)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.vlHRB (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:422847)\n    at Object.iGfZU (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:471009)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:473716\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:243374)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:247686)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:220387)\n    at Object.aDlNP (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221381)\n    at Object.TFjDR (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221779)\n    at _0x382074 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222495)\n    at Object.IRvvm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:221238)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222844\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:222297\n    at _0x2ebe98 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:469569)"
+  "stack": "Error: Invalid authentication token\n    at createAuthError (E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:23:10)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:117:19\n    at allFailed (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:107:18)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:180:28)\n    at JwtStrategy.strategy.fail (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:302:9)\n    at JwtStrategy.authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport-jwt\\lib\\strategy.js:96:21)\n    at attempt (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:366:16)\n    at authenticate (E:\\project\\rule-center\\gameland\\node_modules\\passport\\lib\\middleware\\authenticate.js:367:7)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:144:7\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\src\\middlewares\\/auth.js:143:12\n    at smartProbe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:498245)\n    at Layer.handle [as handle_request] (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\project\\rule-center\\gameland\\node_modules\\express\\lib\\router\\route.js:137:13)\n    at Object.QGpvS (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:410647)\n    at Object.UVEkm (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:461112)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:464575\n    at Generator.<anonymous> (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:228613)\n    at Generator.next (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:234960)\n    at asyncGeneratorStep (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:207439)\n    at Object.zRtIe (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208004)\n    at Object.rFegY (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208907)\n    at _0x20d55b (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209217)\n    at Object.xtVJh (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208205)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:209593\n    at new Promise (<anonymous>)\n    at E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:208685\n    at _0x327834 (E:\\project\\rule-center\\gameland\\node_modules\\jsonfb\\dist\\index.js:1:459052)"
 }
 ```
 
@@ -8899,7 +8828,7 @@ expected 1 to equal 3
         "num": 1
       }
     ],
-    "cost": 3
+    "cost": 2
   },
   "message": "ok"
 }
@@ -9223,11 +9152,6 @@ expected 1 to equal 3
       "path": "tools",
       "type": "directory",
       "children": []
-    },
-    {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
     },
     {
       "name": "yarn.lock",
@@ -9772,33 +9696,7 @@ expected 1 to equal 3
               "name": "dist",
               "path": ".yalc\\jsonfb\\dist",
               "type": "directory",
-              "children": [
-                {
-                  "name": "index.js",
-                  "path": ".yalc\\jsonfb\\dist\\index.js",
-                  "type": "file"
-                }
-              ]
-            },
-            {
-              "name": "LICENSE",
-              "path": ".yalc\\jsonfb\\LICENSE",
-              "type": "file"
-            },
-            {
-              "name": "package.json",
-              "path": ".yalc\\jsonfb\\package.json",
-              "type": "file"
-            },
-            {
-              "name": "README.md",
-              "path": ".yalc\\jsonfb\\README.md",
-              "type": "file"
-            },
-            {
-              "name": "yalc.sig",
-              "path": ".yalc\\jsonfb\\yalc.sig",
-              "type": "file"
+              "children": []
             }
           ]
         }
@@ -13805,11 +13703,6 @@ expected 1 to equal 3
       ]
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -14086,11 +13979,6 @@ expected 1 to equal 3
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -14234,8 +14122,8 @@ expected 1 to equal 3
 {
   "contentType": "application/octet-stream",
   "contentDisposition": "attachment; filename=\"package.json\"",
-  "fileSize": 4818,
-  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\pkg-1779796920838.json"
+  "fileSize": 4807,
+  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\pkg-1779851723724.json"
 }
 ```
 
@@ -14309,8 +14197,8 @@ expected 1 to equal 3
 ```json
 {
   "contentType": "application/zip",
-  "fileSize": 1073007,
-  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\compress-1779796921377.zip"
+  "fileSize": 1073015,
+  "savePath": "E:\\project\\risk\\json-bigint-extend\\test\\downloads\\compress-1779851724339.zip"
 }
 ```
 
@@ -14355,7 +14243,7 @@ expected 1 to equal 3
   "targetId": "user-888",
   "action": "refresh",
   "extra": {
-    "ts": 1779796921383
+    "ts": 1779851724347
   }
 }
 ```
@@ -14371,7 +14259,7 @@ expected 1 to equal 3
     "targetId": "user-888",
     "action": "refresh",
     "extra": {
-      "ts": 1779796921383
+      "ts": 1779851724347
     }
   }
 }
@@ -15410,7 +15298,7 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549",
+  "key": "test:proxy:integration:1779851722498",
   "value": "hello-from-test"
 }
 ```
@@ -15439,7 +15327,7 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549:ttl",
+  "key": "test:proxy:integration:1779851722498:ttl",
   "value": "ttl-test-value",
   "exp": 60
 }
@@ -15496,7 +15384,7 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549"
+  "key": "test:proxy:integration:1779851722498"
 }
 ```
 
@@ -15523,7 +15411,7 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549",
+  "key": "test:proxy:integration:1779851722498",
   "value": null
 }
 ```
@@ -15547,8 +15435,8 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:integration:1779796919549:roundtrip",
-  "value": "round-trip-1779796921433"
+  "key": "test:proxy:integration:1779851722498:roundtrip",
+  "value": "round-trip-1779851724410"
 }
 ```
 
@@ -15558,7 +15446,7 @@ expected 1 to equal 3
 ```json
 {
   "code": 0,
-  "data": "round-trip-1779796921433",
+  "data": "round-trip-1779851724410",
   "message": "ok"
 }
 ```
@@ -15579,7 +15467,7 @@ expected 1 to equal 3
 ```json
 {
   "keys": [
-    "test:proxy:integration:del:1779796919549"
+    "test:proxy:integration:del:1779851722498"
   ]
 }
 ```
@@ -15611,7 +15499,7 @@ expected 1 to equal 3
 ```json
 {
   "keys": [
-    "test:proxy:nonexistent:1779796921456"
+    "test:proxy:nonexistent:1779851724431"
   ]
 }
 ```
@@ -15738,7 +15626,7 @@ expected 1 to equal 3
 
 ---
 
-### ❌ 91. 传入多个 key 数组应一次删除多个 key 并返回删除数量
+### ✅ 91. 传入多个 key 数组应一次删除多个 key 并返回删除数量
 
 **操作**: `DelRedis / 多 key 批量删除`
 
@@ -15750,9 +15638,9 @@ expected 1 to equal 3
 ```json
 {
   "keys": [
-    "test:proxy:del:multi:1:1779796921478",
-    "test:proxy:del:multi:2:1779796921478",
-    "test:proxy:del:multi:3:1779796921478"
+    "test:proxy:del:multi:1:1779851724450",
+    "test:proxy:del:multi:2:1779851724450",
+    "test:proxy:del:multi:3:1779851724450"
   ]
 }
 ```
@@ -15763,17 +15651,12 @@ expected 1 to equal 3
 ```json
 {
   "code": 0,
-  "data": 1,
+  "data": 3,
   "message": "ok"
 }
 ```
 
 **备注**: 先写入三个 key，再通过 keys 数组一次删除
-
-**错误**:
-```
-expected 1 to equal 3
-```
 
 ---
 
@@ -15784,8 +15667,8 @@ expected 1 to equal 3
 **请求体**:
 ```json
 {
-  "key": "test:proxy:del:lifecycle:1779796921498",
-  "value": "lifecycle-value-1779796921498"
+  "key": "test:proxy:del:lifecycle:1779851724477",
+  "value": "lifecycle-value-1779851724477"
 }
 ```
 
@@ -16067,11 +15950,6 @@ expected 1 to equal 3
       "children": []
     },
     {
-      "name": "yalc.lock",
-      "path": "yalc.lock",
-      "type": "file"
-    },
-    {
       "name": "yarn.lock",
       "path": "yarn.lock",
       "type": "file"
@@ -16083,7 +15961,7 @@ expected 1 to equal 3
 
 </details>
 
-**备注**: 响应时间: 5ms
+**备注**: 响应时间: 4ms
 
 ---
 
@@ -16115,7 +15993,7 @@ expected 1 to equal 3
 }
 ```
 
-**备注**: 响应时间: 2ms
+**备注**: 响应时间: 3ms
 
 ---
 
