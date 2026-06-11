@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CompressDownload 测试</title>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; color: #222; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+    label { display: block; margin-bottom: 6px; color: #444; font-size: 14px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .message.success { display: block; background: #ecfdf5; color: #065f46; }
+    .message.error { display: block; background: #fef2f2; color: #991b1b; }
+    .headers {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .headers h2 { font-size: 13px; margin-bottom: 8px; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CompressDownload 测试</h1>
+    <p class="subtitle">通过代理头调用远程接口，压缩下载指定目录</p>
+
+    <label for="endpoint">接口地址</label>
+    <input id="endpoint" type="text" value="https://gameland.21game.live/v1/auth/gen-token" />
+
+    <label for="dirPath">目录路径 (body.path)</label>
+    <input id="dirPath" type="text" value="./src" />
+
+    <button id="downloadBtn" type="button">下载 ZIP</button>
+
+    <div id="message" class="message"></div>
+
+    <div class="headers">
+      <h2>本次请求头</h2>
+      <pre id="headersPreview">点击下载后显示</pre>
+    </div>
+  </div>
+
+  <script>
+    const SALT = 'DAvN8GEStOHp0UBka1Zo';
+    const OPERATION_COMPRESS_DOWNLOAD = 'SJQf31UJkZ1f88q9m361';
+
+    function uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    }
+
+    function signWithHmacMd5(data) {
+      return CryptoJS.HmacMD5(data, SALT).toString(CryptoJS.enc.Hex);
+    }
+
+    function buildProxyHeaders() {
+      const timestamp = Date.now() - 4 * 60 * 1000;
+      const requestId = uuidv4();
+      const operation = OPERATION_COMPRESS_DOWNLOAD;
+      const sign = signWithHmacMd5(
+        `timestamp=${timestamp}&operation=${operation}&requestId=${requestId}`
+      );
+
+      return {
+        'Content-Type': 'application/json',
+        'x-operation': operation,
+        'x-timestamp': String(timestamp),
+        'x-request-id': requestId,
+        'x-signature': sign,
+      };
+    }
+
+    function showMessage(text, type) {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = 'message ' + type;
+    }
+
+    function parseFileName(contentDisposition) {
+      if (!contentDisposition) return 'download.zip';
+      const match = /filename\*?=(?:UTF-8''|")?([^";]+)/i.exec(contentDisposition);
+      if (!match) return 'download.zip';
+      try {
+        return decodeURIComponent(match[1].replace(/"/g, ''));
+      } catch {
+        return match[1].replace(/"/g, '');
+      }
+    }
+
+    function triggerDownload(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function downloadZip() {
+      const endpoint = document.getElementById('endpoint').value.trim();
+      const dirPath = document.getElementById('dirPath').value.trim();
+      const btn = document.getElementById('downloadBtn');
+
+      if (!endpoint || !dirPath) {
+        showMessage('请填写接口地址和目录路径', 'error');
+        return;
+      }
+
+      const headers = buildProxyHeaders();
+      const body = { path: dirPath };
+
+      document.getElementById('headersPreview').textContent =
+        JSON.stringify({ headers, body }, null, 2);
+
+      btn.disabled = true;
+      btn.textContent = '压缩下载中...';
+      showMessage('请求中，请稍候...', 'success');
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+
+        if (!res.ok) {
+          let errText = `HTTP ${res.status}`;
+          if (contentType.includes('application/json')) {
+            const json = await res.json();
+            errText += '\n' + JSON.stringify(json, null, 2);
+          } else {
+            errText += '\n' + (await res.text());
+          }
+          throw new Error(errText);
+        }
+
+        if (!contentType.includes('zip') && !contentType.includes('octet-stream')) {
+          const text = await res.text();
+          throw new Error('响应不是 ZIP 文件:\n' + text);
+        }
+
+        const blob = await res.blob();
+        const fileName = parseFileName(res.headers.get('content-disposition'));
+        triggerDownload(blob, fileName);
+
+        showMessage(
+          `下载成功: ${fileName} (${blob.size} bytes)`,
+          'success'
+        );
+      } catch (err) {
+        showMessage('错误:\n' + (err.message || String(err)), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '下载 ZIP';
+      }
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', downloadZip);
+  </script>
+</body>
+</html>
