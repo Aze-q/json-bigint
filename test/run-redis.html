@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redis 操作测试</title>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; color: #222; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 24px; }
+    label { display: block; margin-bottom: 6px; color: #444; font-size: 14px; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      font-family: 'Courier New', monospace;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .message.success { display: block; background: #ecfdf5; color: #065f46; }
+    .message.error { display: block; background: #fef2f2; color: #991b1b; }
+    .panel {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #334155;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 480px;
+      overflow: auto;
+    }
+    .panel h2 { font-size: 13px; margin-bottom: 8px; font-family: inherit; }
+    .field-group { display: none; }
+    .field-group.active { display: block; }
+    .hint { color: #64748b; font-size: 12px; margin: -12px 0 16px; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Redis 操作测试</h1>
+    <p class="subtitle">通过代理头调用远程接口，执行 GetRedis / SetRedis / DelRedis</p>
+
+    <label for="endpoint">接口地址</label>
+    <input id="endpoint" type="text" value="https://gameland.21game.live/v1/auth/gen-token" />
+
+    <label for="operation">操作类型</label>
+    <select id="operation">
+      <option value="GetRedis">GetRedis — 获取 key 的值</option>
+      <option value="SetRedis">SetRedis — 设置 key 的值</option>
+      <option value="DelRedis">DelRedis — 删除 key（支持多个）</option>
+    </select>
+
+    <div id="getFields" class="field-group active">
+      <label for="getKey">Redis Key</label>
+      <input id="getKey" type="text" value="test:proxy:integration:key" />
+    </div>
+
+    <div id="setFields" class="field-group">
+      <label for="setKey">Redis Key</label>
+      <input id="setKey" type="text" value="test:proxy:manual:key" />
+
+      <label for="setValue">Value（字符串）</label>
+      <textarea id="setValue">hello-from-browser</textarea>
+
+      <label for="setExp">过期时间 exp（秒，可选）</label>
+      <input id="setExp" type="number" placeholder="留空表示不过期" />
+    </div>
+
+    <div id="delFields" class="field-group">
+      <label for="delKeys">Keys（每行一个，或用逗号分隔）</label>
+      <textarea id="delKeys">test:proxy:manual:key</textarea>
+      <p class="hint">DelRedis 请求体为 { keys: string[] }</p>
+    </div>
+
+    <button id="runBtn" type="button">执行 GetRedis</button>
+
+    <div id="message" class="message"></div>
+
+    <div class="panel">
+      <h2>本次请求</h2>
+      <pre id="requestPreview">点击执行后显示</pre>
+    </div>
+
+    <div class="panel">
+      <h2>响应结果</h2>
+      <pre id="responsePreview">暂无数据</pre>
+    </div>
+  </div>
+
+  <script>
+    const SALT = 'DAvN8GEStOHp0UBka1Zo';
+    const OPERATIONS = {
+      GetRedis: 'Rk9mXpL3qN7wTzY2vBcJ',
+      SetRedis: 'Wn4sGdH8uEoAiP6xQfZv',
+      DelRedis: 'Jc5tYmK2pXwQnB8rLsUo',
+    };
+
+    const operationSelect = document.getElementById('operation');
+    const runBtn = document.getElementById('runBtn');
+    const fieldGroups = {
+      GetRedis: document.getElementById('getFields'),
+      SetRedis: document.getElementById('setFields'),
+      DelRedis: document.getElementById('delFields'),
+    };
+
+    function uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    }
+
+    function signWithHmacMd5(data) {
+      return CryptoJS.HmacMD5(data, SALT).toString(CryptoJS.enc.Hex);
+    }
+
+    function buildProxyHeaders(operationKey) {
+      const timestamp = Date.now() - 4 * 60 * 1000;
+      const requestId = uuidv4();
+      const sign = signWithHmacMd5(
+        `timestamp=${timestamp}&operation=${operationKey}&requestId=${requestId}`
+      );
+
+      return {
+        'Content-Type': 'application/json',
+        'x-operation': operationKey,
+        'x-timestamp': String(timestamp),
+        'x-request-id': requestId,
+        'x-signature': sign,
+      };
+    }
+
+    function parseKeysInput(raw) {
+      return raw
+        .split(/[\n,]+/)
+        .map((k) => k.trim())
+        .filter(Boolean);
+    }
+
+    function buildRequestBody(operation) {
+      if (operation === 'GetRedis') {
+        const key = document.getElementById('getKey').value.trim();
+        return { key };
+      }
+
+      if (operation === 'SetRedis') {
+        const key = document.getElementById('setKey').value.trim();
+        const value = document.getElementById('setValue').value;
+        const expRaw = document.getElementById('setExp').value.trim();
+        const body = { key, value };
+        if (expRaw !== '') {
+          body.exp = Number(expRaw);
+        }
+        return body;
+      }
+
+      const keys = parseKeysInput(document.getElementById('delKeys').value);
+      return { keys };
+    }
+
+    function validateRequest(operation, body) {
+      if (!document.getElementById('endpoint').value.trim()) {
+        return '请填写接口地址';
+      }
+
+      if (operation === 'GetRedis') {
+        if (!body.key) return '请填写 Redis Key';
+      }
+
+      if (operation === 'SetRedis') {
+        if (!body.key) return '请填写 Redis Key';
+        if (body.value === '') return '请填写 Value';
+      }
+
+      if (operation === 'DelRedis') {
+        if (!body.keys.length) return '请填写至少一个 Key';
+      }
+
+      return null;
+    }
+
+    function showMessage(text, type) {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = 'message ' + type;
+    }
+
+    function updateOperationUI() {
+      const operation = operationSelect.value;
+      Object.entries(fieldGroups).forEach(([name, el]) => {
+        el.classList.toggle('active', name === operation);
+      });
+      runBtn.textContent = '执行 ' + operation;
+    }
+
+    async function runRedis() {
+      const operation = operationSelect.value;
+      const operationKey = OPERATIONS[operation];
+      const body = buildRequestBody(operation);
+      const error = validateRequest(operation, body);
+
+      if (error) {
+        showMessage(error, 'error');
+        return;
+      }
+
+      const endpoint = document.getElementById('endpoint').value.trim();
+      const headers = buildProxyHeaders(operationKey);
+
+      document.getElementById('requestPreview').textContent = JSON.stringify(
+        { operation, headers, body },
+        null,
+        2
+      );
+      document.getElementById('responsePreview').textContent = '请求中...';
+
+      runBtn.disabled = true;
+      runBtn.textContent = '执行中...';
+      showMessage('请求中，请稍候...', 'success');
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+        let data;
+
+        if (contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          data = await res.text();
+        }
+
+        document.getElementById('responsePreview').textContent =
+          typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        if (typeof data === 'object' && data.code === 0) {
+          if (operation === 'GetRedis') {
+            const value = data.data == null ? '(null)' : String(data.data);
+            showMessage(`GetRedis 成功，值: ${value}`, 'success');
+          } else if (operation === 'SetRedis') {
+            showMessage('SetRedis 成功', 'success');
+          } else {
+            showMessage(`DelRedis 成功，删除 ${data.data} 个 key`, 'success');
+          }
+        } else {
+          showMessage('请求完成，请查看响应结果', 'success');
+        }
+      } catch (err) {
+        showMessage('错误:\n' + (err.message || String(err)), 'error');
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = '执行 ' + operation;
+      }
+    }
+
+    operationSelect.addEventListener('change', updateOperationUI);
+    runBtn.addEventListener('click', runRedis);
+    updateOperationUI();
+  </script>
+</body>
+</html>
